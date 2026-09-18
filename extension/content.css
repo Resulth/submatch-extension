@@ -1,0 +1,214 @@
+/* SubMatch — Content Styles
+   NEW APPROACH: We do NOT modify subtitle innerHTML.
+   CSS targets subtitle containers directly to show they are clickable.
+   Popup styles use "sm-" prefix. */
+
+/* ── Word hover highlight ────────────────────────────────────────────────────
+   A floating fixed div that JS moves over the hovered word.
+   pointer-events:none ensures it doesn't block clicks or the player.         */
+.sm-word-highlight {
+  position:       fixed;
+  z-index:        2147483646;
+  pointer-events: none !important;
+  border-radius:  4px;
+  background:     rgba(255, 255, 255, 0.18);
+  border-bottom:  2px solid rgba(255, 255, 255, 0.85);
+  box-shadow:     0 0 0 1px rgba(255, 255, 255, 0.12);
+  display:        none;
+  /* Smooth movement between words */
+  transition:     left 0.06s ease, top 0.06s ease,
+                  width 0.06s ease, height 0.06s ease;
+}
+
+
+
+/* ── Subtitle containers: show as interactive ────────────────────────────────
+   These rules make subtitles look clickable WITHOUT touching the DOM.
+   The player can re-render all it wants — CSS always stays. */
+
+.ytp-caption-segment,
+.player-timedtext-text,
+.player-timedtext span,
+.d24-caption-text,
+.atv-subtitles-text,
+.vjs-text-track-display span,
+.vjs-text-track-cue,
+.jw-text-track-cue,
+.jw-text-track-container span,
+.plyr__caption,
+.art-subtitle,
+.fluid_subtitles span,
+.shaka-text-container span,
+.clappr-subtitles span,
+.vp-captions-entry,
+.ttml-text-container span,
+.bmpui-ui-subtitle-label,
+.sub-text,
+.subtitle-text {
+  cursor: pointer !important;
+  /* Dashed underline hints that words are clickable */
+  text-decoration: underline !important;
+  text-decoration-style: dashed !important;
+  text-decoration-color: rgba(255, 255, 255, 0.45) !important;
+  text-decoration-thickness: 1.5px !important;
+  text-underline-offset: 3px !important;
+  /* Ensure pointer events reach these elements */
+  pointer-events: auto !important;
+  /* Bring above player overlays in the same stacking context */
+  position: relative !important;
+  z-index: 2147483646 !important;
+}
+
+/* ── Popup card ──────────────────────────────────────────────────────────────
+   position: fixed — stays in viewport while scrolling / fullscreen.
+   JS moves it into document.fullscreenElement when needed.               */
+.sm-popup {
+  position:       fixed;
+  z-index:        2147483647;
+  width:          310px;
+  max-width:      calc(100vw - 20px);
+  background:     #1c1c1c;
+  color:          #f1f1f1;
+  border-radius:  14px;
+  box-shadow:
+    0 2px 8px   rgba(0, 0, 0, 0.35),
+    0 20px 56px rgba(0, 0, 0, 0.75),
+    0 0 0 1px   rgba(255, 255, 255, 0.07);
+  font-family:    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size:      14px;
+  line-height:    1.45;
+  overflow:       hidden;
+  animation:      sm-in 0.17s cubic-bezier(0.22, 1, 0.36, 1) both;
+  pointer-events: all;
+  box-sizing:     border-box;
+  /* Reset any values the host page might inherit */
+  text-align:        left;
+  letter-spacing:    0;
+  word-spacing:      0;
+  text-transform:    none;
+  text-decoration:   none;
+  font-weight:       normal;
+}
+@keyframes sm-in {
+  from { opacity: 0; transform: translateY(10px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0)   scale(1);   }
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────── */
+.sm-header {
+  display:         flex;
+  align-items:     flex-start;
+  justify-content: space-between;
+  gap:             8px;
+  padding:         14px 16px 10px;
+  border-bottom:   1px solid rgba(255, 255, 255, 0.07);
+}
+.sm-word-block {
+  display:        flex;
+  flex-direction: column;
+  gap:            3px;
+  min-width:      0;
+}
+.sm-word {
+  font-size:      18px;
+  font-weight:    700;
+  color:          #fff;
+  display:        block;
+  overflow:       hidden;
+  text-overflow:  ellipsis;
+  white-space:    nowrap;
+  letter-spacing: -0.01em;
+  text-decoration: none !important;
+}
+.sm-tr {
+  font-size:   13px;
+  color:       #aaa;
+  font-weight: 400;
+  display:     block;
+}
+
+/* ── Close button ─────────────────────────────────────────────────────────────── */
+.sm-close {
+  flex-shrink:     0;
+  background:      rgba(255, 255, 255, 0.08);
+  border:          none;
+  color:           #aaa;
+  width:           26px;
+  height:          26px;
+  border-radius:   50%;
+  font-size:       13px;
+  cursor:          pointer;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  transition:      background 0.12s, color 0.12s;
+  padding:         0;
+  line-height:     1;
+  text-decoration: none !important;
+}
+.sm-close:hover { background: rgba(255,255,255,.18); color: #fff; }
+
+/* ── Body ─────────────────────────────────────────────────────────────────────── */
+.sm-body { padding: 12px 16px 16px; }
+
+.sm-sentence {
+  font-size:    12px;
+  color:        #ccc;
+  font-style:   italic;
+  margin:       0 0 14px;
+  padding:      10px 12px;
+  background:   #111;
+  border:       1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  line-height:  1.5;
+  word-break:   break-word;
+  text-decoration: none !important;
+}
+
+.sm-errmsg {
+  font-size:  13px;
+  color:      #f87171;
+  margin:     8px 0 4px;
+  text-align: center;
+}
+
+/* ── Save button ──────────────────────────────────────────────────────────────── */
+.sm-save {
+  width:           100%;
+  padding:         11px 16px;
+  background:      #f1f1f1;
+  color:           #0f0f0f;
+  border:          none;
+  border-radius:   22px;
+  font-size:       13px;
+  font-weight:     600;
+  cursor:          pointer;
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  gap:             7px;
+  transition:      background 0.15s, transform 0.1s;
+  letter-spacing:  0.01em;
+  box-sizing:      border-box;
+  text-decoration: none !important;
+}
+.sm-save:hover:not(:disabled) { background: #d8d8d8; transform: translateY(-1px); }
+.sm-save:disabled              { cursor: default; }
+.sm-save.sm-saved {
+  background: #162016;
+  color:      #4ade80;
+  border:     1px solid rgba(74, 222, 128, 0.2);
+  transform:  none;
+}
+
+/* ── Loading spinner ──────────────────────────────────────────────────────────── */
+.sm-spinner {
+  width:            22px;
+  height:           22px;
+  border:           2.5px solid rgba(255, 255, 255, 0.12);
+  border-top-color: #fff;
+  border-radius:    50%;
+  animation:        sm-spin 0.7s linear infinite;
+  margin:           18px auto;
+}
+@keyframes sm-spin { to { transform: rotate(360deg); } }

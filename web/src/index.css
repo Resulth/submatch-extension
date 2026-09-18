@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+  color: #F1F1F1;
+  background-color: #0F0F0F;
+}
+
+html, body {
+  background-color: #0F0F0F !important;
+  color: #F1F1F1 !important;
+  margin: 0;
+  padding: 0;
+}
