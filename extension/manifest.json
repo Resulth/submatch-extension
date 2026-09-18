@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SubMatch - Learn Languages While Watching",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Click any subtitle word on Netflix, YouTube, Disney+ and more to instantly translate and save it as a flashcard.",
   "permissions": [
     "storage",
@@ -47,5 +47,6 @@
     }
   ]
 }
+
 
 
