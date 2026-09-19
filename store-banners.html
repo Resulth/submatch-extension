@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SubMatch Store Promos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    <style>
+        body { background-color: #050505; color: #fff; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 50px; display: flex; flex-direction: column; align-items: center; gap: 60px; }
+        .action-bar { text-align: center; margin-top: 10px; }
+        button { background: #2ea043; color: #fff; border: none; padding: 14px 28px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+        
+        .promo-small { width: 440px; height: 280px; background-color: #0F0F0F; display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box; overflow: hidden;}
+        .logo-box-small { width: 64px; height: 64px; background-color: #1c1c1c; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        .promo-small h1 { font-size: 36px; margin: 0 0 8px 0; font-weight: 800; }
+        .promo-small p { font-size: 16px; color: #888; margin: 0; padding: 0 20px; line-height: 1.4; text-align: center;}
+
+        .promo-marquee { width: 1400px; height: 560px; background-color: #0F0F0F; position: relative; overflow: hidden; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; padding: 0 120px; }
+        .logo-box-large { width: 100px; height: 100px; background-color: #1c1c1c; border-radius: 24px; display: flex; align-items: center; justify-content: center; margin-bottom: 30px; }
+        .marquee-left { z-index: 10; max-width: 600px; }
+        .marquee-left h1 { font-size: 72px; font-weight: 800; margin: 0 0 20px 0; }
+        .marquee-left p { font-size: 28px; color: #a3a3a3; margin: 0 0 30px 0; font-weight: 500; line-height: 1.4; }
+        .platform-pill { display: inline-block; background-color: #1c1c1c; border: 2px solid #333; padding: 10px 20px; border-radius: 30px; font-weight: bold; color: #ccc; font-size: 16px; }
+
+        .marquee-right { position: relative; width: 480px; height: 400px; }
+        .mock-container { position: absolute; inset: 0; background-color: #151515; border: 2px solid #2a2a2a; border-radius: 16px; }
+        .mock-browser-bar { height: 40px; background-color: #111111; border-bottom: 2px solid #2a2a2a; display: flex; align-items: center; padding: 0 16px; gap: 8px; border-top-left-radius: 16px; border-top-right-radius: 16px; }
+        .mac-dot { width: 12px; height: 12px; border-radius: 50%; background-color: #333; }
+        .mac-dot:nth-child(1) { background-color: #ff5f56; } .mac-dot:nth-child(2) { background-color: #ffbd2e; } .mac-dot:nth-child(3) { background-color: #27c93f; }
+
+        .popup-mock { background-color: #1e1e1e; border-radius: 20px; padding: 24px; width: 320px; position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); box-shadow: 0 20px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; z-index:5;}
+        .popup-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .popup-mock h3 { margin: 0; font-size: 26px; color: #fff; font-weight: 800; }
+        .close-btn { width: 32px; height: 32px; background-color: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 14px; font-weight: bold; }
+        .popup-mock .trans { font-size: 16px; color: #aaa; margin-top: 8px; margin-bottom: 20px; }
+        .popup-divider { height: 1px; background-color: #2a2a2a; margin: 0 -24px 20px -24px; }
+        .sentence-box { background-color: #0f0f0f; border-radius: 12px; padding: 16px; font-style: italic; color: #ddd; margin-bottom: 20px; font-size: 15px; }
+        .save-btn { background-color: #f1f1f1; color: #111; border: none; width: 100%; padding: 14px; border-radius: 30px; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; box-sizing: border-box; }
+        
+        .subtitle-mock { font-size: 24px; font-weight: bold; position: absolute; bottom: 40px; text-align: center; width: 100%; color: #fff;}
+        .dashed-word { border-bottom: 2px dashed #ccc; padding-bottom: 2px; }
+    </style>
+</head>
+<body>
+    <div>
+        <h3 style="text-align:center; color:#888;">Küçük Tanıtım Bloğu (440x280)</h3>
+        <div class="promo-small" id="promo-small">
+            <div class="logo-box-small"><svg width="32" height="32" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+            <h1>SubMatch</h1>
+            <p>Learn languages directly from Netflix and YouTube subtitles.</p>
+        </div>
+        <div class="action-bar"><button onclick="takeShot('promo-small', 440, 280, 'small-promo-440x280.png')">İndir (440x280)</button></div>
+    </div>
+    <div>
+        <h3 style="text-align:center; color:#888;">Kayan Yazı Tanıtım Bloğu (1400x560)</h3>
+        <div class="promo-marquee" id="promo-marquee">
+            <div class="marquee-left">
+                <div class="logo-box-large"><svg width="50" height="50" viewBox="0 0 24 24" fill="white"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
+                <h1>SubMatch</h1>
+                <p>Turn any movie or video into an interactive language lesson.</p>
+                <div class="platform-pill">Works on Netflix, YouTube, Disney+</div>
+            </div>
+            <div class="marquee-right">
+                <div class="mock-container">
+                    <div class="mock-browser-bar"><div class="mac-dot"></div><div class="mac-dot"></div><div class="mac-dot"></div></div>
+                    <div class="popup-mock">
+                        <div class="popup-header"><h3>bleach</h3><div class="close-btn">✕</div></div>
+                        <div class="trans">çamaşır suyu</div><div class="popup-divider"></div>
+                        <div class="sentence-box">It's kinda giving like bleach.</div><div class="save-btn">★ Save to cards</div>
+                    </div>
+                    <div class="subtitle-mock">It's kinda giving like <span class="dashed-word">bleach</span>.</div>
+                </div>
+            </div>
+        </div>
+        <div class="action-bar"><button onclick="takeShot('promo-marquee', 1400, 560, 'marquee-promo-1400x560.png')">İndir (1400x560)</button></div>
+    </div>
+    <script>
+        function takeShot(elementId, w, h, filename) {
+            var node = document.getElementById(elementId);
+            // FORCING EXACT DIMENSIONS
+            htmlToImage.toPng(node, { width: w, height: h, canvasWidth: w, canvasHeight: h, pixelRatio: 1 })
+            .then(function (dataUrl) {
+                var link = document.createElement('a'); link.download = filename; link.href = dataUrl; link.click();
+            }).catch(function(e){ alert('Hata'); });
+        }
+    </script>
+</body>
+</html>
