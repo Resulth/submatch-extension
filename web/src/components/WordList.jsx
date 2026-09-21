@@ -21,14 +21,16 @@ export default function WordList({ words, onDeleteWord }) {
   return (
     <div className="max-w-4xl mx-auto my-6 px-4">
       {/* Arama Barı */}
-      <div className="flex items-center mb-6 w-full bg-slate-800/80 border border-slate-700/80 focus-within:border-blue-500 rounded-xl shadow-lg transition px-4 overflow-hidden">
-        <Search className="w-5 h-5 text-slate-400 flex-shrink-0" />
+      <div className="relative mb-6">
+        <div className="absolute left-4 top-0 bottom-0 flex items-center justify-center pointer-events-none">
+          <Search className="w-5 h-5 text-slate-400 -translate-y-[3px]" />
+        </div>
         <input
           type="text"
           placeholder="Kaydedilen kelimelerde veya cümlelerde ara..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-transparent text-slate-100 placeholder-slate-400 outline-none py-3 pl-3"
+          className="w-full pl-12 pr-4 py-3 bg-slate-800/80 border border-slate-700/80 focus:border-blue-500 rounded-xl text-slate-100 placeholder-slate-400 outline-none transition shadow-lg"
         />
       </div>
 

@@ -234,7 +234,9 @@ export default function App() {
           /* Collection Tab */
           <div className="space-y-4">
             <div className="relative">
-              <Search className="absolute left-4 top-3.5 w-4 h-4 text-[#AAAAAA]" />
+              <div className="absolute left-4 top-0 bottom-0 flex items-center justify-center pointer-events-none">
+                <Search className="w-4 h-4 text-[#AAAAAA] -mt-[2px]" />
+              </div>
               <input
                 type="text"
                 placeholder="Kelime deponuzda arayın..."
