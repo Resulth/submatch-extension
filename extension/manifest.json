@@ -1,52 +1,60 @@
-{
-  "manifest_version": 3,
-  "name": "SubMatch - Learn Languages While Watching",
-  "version": "1.0.3",
-  "description": "Click any subtitle word on Netflix, YouTube, Disney+ and more to instantly translate and save it as a flashcard.",
-  "permissions": [
-    "storage",
-    "activeTab",
-    "tabs"
-  ],
-  "host_permissions": [
-    "<all_urls>",
-    "https://translate.googleapis.com/*",
-    "https://generativelanguage.googleapis.com/*"
-  ],
-  "icons": {
-    "16":  "icons/icon16.png",
-    "48":  "icons/icon48.png",
-    "128": "icons/icon128.png"
-  },
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "SubMatch",
-    "default_icon": {
-      "16":  "icons/icon16.png",
-      "48":  "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
-  },
-  "background": {
-    "service_worker": "background.js"
-  },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js":  ["content.js"],
-      "css": ["content.css"],
-      "all_frames": true,
-      "match_about_blank": true,
-      "run_at": "document_idle"
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["dashboard/index.html", "dashboard/assets/*"],
-      "matches":   ["<all_urls>"]
-    }
-  ]
+﻿{
+    "manifest_version":  3,
+    "name":  "SubMatch - Learn Languages While Watching",
+    "version":  "1.0.4",
+    "description":  "Click any subtitle word on Netflix, YouTube, Disney+ and more to instantly translate and save it as a flashcard.",
+    "permissions":  [
+                        "storage",
+                        "activeTab",
+                        "tabs"
+                    ],
+    "host_permissions":  [
+                             "\u003call_urls\u003e",
+                             "https://translate.googleapis.com/*",
+                             "https://generativelanguage.googleapis.com/*"
+                         ],
+    "icons":  {
+                  "16":  "icons/icon16.png",
+                  "48":  "icons/icon48.png",
+                  "128":  "icons/icon128.png"
+              },
+    "action":  {
+                   "default_popup":  "popup.html",
+                   "default_title":  "SubMatch",
+                   "default_icon":  {
+                                        "16":  "icons/icon16.png",
+                                        "48":  "icons/icon48.png",
+                                        "128":  "icons/icon128.png"
+                                    }
+               },
+    "background":  {
+                       "service_worker":  "background.js"
+                   },
+    "content_scripts":  [
+                            {
+                                "matches":  [
+                                                "\u003call_urls\u003e"
+                                            ],
+                                "js":  [
+                                           "content.js"
+                                       ],
+                                "css":  [
+                                            "content.css"
+                                        ],
+                                "all_frames":  true,
+                                "match_about_blank":  true,
+                                "run_at":  "document_idle"
+                            }
+                        ],
+    "web_accessible_resources":  [
+                                     {
+                                         "resources":  [
+                                                           "dashboard/index.html",
+                                                           "dashboard/assets/*"
+                                                       ],
+                                         "matches":  [
+                                                         "\u003call_urls\u003e"
+                                                     ]
+                                     }
+                                 ]
 }
-
-
-

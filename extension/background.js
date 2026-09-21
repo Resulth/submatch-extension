@@ -27,37 +27,33 @@ async function handleWordLookup(word, sentence) {
   const userLang = uiLang.split('-')[0].toLowerCase();
 
   try {
-    const result = await googleTranslateLookup(word.trim(), userLang);
-    return result;
+    // Translate word and sentence in parallel for speed
+    const [wordResult, sentenceTranslation] = await Promise.all([
+      googleTranslateLookup(word.trim(), userLang),
+      sentence?.trim() ? translateSentence(sentence.trim(), userLang) : Promise.resolve(''),
+    ]);
+    return { ...wordResult, sentenceTranslation };
   } catch (err) {
     console.warn('[SubMatch] Translate failed:', err.message);
-    // Silent fallback — return original word so popup still shows
-    return { word: word.trim(), translation: '', contextExplanation: '', exampleSentence: '' };
+    return { word: word.trim(), translation: '', contextExplanation: '', exampleSentence: '', sentenceTranslation: '' };
   }
 }
 
 // ─── Google Translate (free endpoint, no API key required) ─────────────────────
 async function googleTranslateLookup(word, targetLang) {
-  // If user's language is the same as the video language, translate to English instead
-  // so the user always sees a useful translation.
-  // We let Google auto-detect source; if source === target it returns the original word.
   const url = new URL('https://translate.googleapis.com/translate_a/single');
   url.searchParams.set('client', 'gtx');
-  url.searchParams.set('sl', 'auto');      // auto-detect source language
-  url.searchParams.set('tl', targetLang);  // user's browser language
-  url.searchParams.set('dt', 't');         // return translation
+  url.searchParams.set('sl', 'auto');
+  url.searchParams.set('tl', targetLang);
+  url.searchParams.set('dt', 't');
   url.searchParams.set('q', word);
 
   const res = await fetch(url.toString(), { cache: 'no-store' });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
   const json = await res.json();
-
-  // Response shape: [ [ [translatedText, originalText, …], … ], detectedLang ]
   const translation = json?.[0]?.[0]?.[0] ?? '';
 
-  // If translation equals original word, Google couldn't translate (e.g. name, acronym)
-  // Try translating to English as fallback so popup isn't empty
   if (!translation || translation.toLowerCase() === word.toLowerCase()) {
     if (targetLang !== 'en') {
       const fallbackUrl = url.toString().replace(`tl=${targetLang}`, 'tl=en');
@@ -73,6 +69,27 @@ async function googleTranslateLookup(word, targetLang) {
   }
 
   return { word, translation, contextExplanation: '', exampleSentence: '' };
+}
+
+// ─── Sentence translation ──────────────────────────────────────────────────────
+async function translateSentence(sentence, targetLang) {
+  const url = new URL('https://translate.googleapis.com/translate_a/single');
+  url.searchParams.set('client', 'gtx');
+  url.searchParams.set('sl', 'auto');
+  url.searchParams.set('tl', targetLang);
+  url.searchParams.set('dt', 't');
+  url.searchParams.set('q', sentence);
+
+  try {
+    const res = await fetch(url.toString(), { cache: 'no-store' });
+    if (!res.ok) return '';
+    const json = await res.json();
+    // Google returns the sentence in chunks — join them all
+    const parts = json?.[0] ?? [];
+    return parts.map(p => p?.[0] ?? '').join('').trim();
+  } catch {
+    return '';
+  }
 }
 
 // ─── Storage: save with SM-2 spaced repetition defaults ────────────────────────

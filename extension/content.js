@@ -228,6 +228,10 @@ function buildLoadingPopup(word) {
 }
 
 function renderResult(popup, data, sentence) {
+  const sentTr = data.sentenceTranslation || '';
+  // Only show sentence translation if it's different from the original
+  const showSentTr = sentTr && sentTr.toLowerCase() !== sentence.toLowerCase();
+
   popup.innerHTML = `
     <div class="sm-header">
       <div class="sm-word-block">
@@ -238,6 +242,7 @@ function renderResult(popup, data, sentence) {
     </div>
     <div class="sm-body">
       <p class="sm-sentence">${esc(sentence)}</p>
+      ${showSentTr ? `<p class="sm-sentence-tr">${esc(sentTr)}</p>` : ''}
       <button class="sm-save">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
