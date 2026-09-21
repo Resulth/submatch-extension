@@ -206,9 +206,9 @@
 .sm-save:hover:not(:disabled) { background: #d8d8d8; transform: translateY(-1px); }
 .sm-save:disabled              { cursor: default; }
 .sm-save.sm-saved {
-  background: #162016;
-  color:      #4ade80;
-  border:     1px solid rgba(74, 222, 128, 0.2);
+  background: #e5e5e5;
+  color:      #0f0f0f;
+  border:     none;
   transform:  none;
 }
 

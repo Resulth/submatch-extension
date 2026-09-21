@@ -273,7 +273,7 @@ function renderResult(popup, data, sentence) {
   popup.querySelector('.sm-save').addEventListener('click', () => {
     const btn = popup.querySelector('.sm-save');
     btn.disabled = true;
-    btn.textContent = '✓ Saved!';
+    btn.innerHTML = '<span style="color: #10b981; font-weight: bold; margin-right: 4px;">✓</span> Saved';
     btn.classList.add('sm-saved');
     safelySendMessage({
       action: 'saveWord',
