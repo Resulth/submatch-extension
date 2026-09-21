@@ -33,8 +33,18 @@
         .subtitle-mock { font-size: 32px; font-weight: 600; margin-top: 360px; text-align: center; width: 100%; color: #fff;}
         .dashed-word { border-bottom: 2px dashed #ccc; padding-bottom: 2px; }
 
-        .dash-header { padding: 24px; border-bottom: 2px solid #222; display: flex; justify-content: space-between; align-items: center; background-color: #0a0a0a;}
-        .word-item { background-color: #1c1c1c; border: 2px solid #2a2a2a; border-radius: 8px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .search-bar-mock { background-color: #181818; border: 1px solid #303030; border-radius: 999px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; margin: 40px auto 16px; width: 480px; box-sizing: border-box; }
+        .search-icon { color: #aaa; display: flex; align-items: center; justify-content: center; }
+        .search-text { color: #aaa; font-size: 13px; font-weight: 400; font-family: system-ui, -apple-system, sans-serif; }
+        .dict-list { display: flex; flex-direction: column; gap: 12px; width: 480px; margin: 0 auto; padding-bottom: 20px; text-align: left; }
+        .dict-item { background-color: #181818; border: 1px solid #303030; border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .dict-content { display: flex; flex-direction: column; gap: 4px; }
+        .dict-word-row { display: flex; align-items: center; gap: 8px; }
+        .dict-word { font-size: 18px; font-weight: 800; color: #fff; line-height: 1; font-family: system-ui, -apple-system, sans-serif;}
+        .dict-speaker { color: #aaa; display: flex; align-items: center; justify-content: center; }
+        .dict-trans { color: #ddd; font-size: 13px; font-weight: 500; font-family: system-ui, -apple-system, sans-serif;}
+        .dict-sentence { color: #888; font-style: italic; font-size: 12px; font-family: system-ui, -apple-system, sans-serif;}
+        .dict-delete { color: #aaa; display: flex; align-items: center; justify-content: center; }
         .dash-card { background-color: #181818; border: 1px solid #303030; border-radius: 16px; padding: 32px; width: 480px; margin: 30px auto; display: flex; flex-direction: column; justify-content: space-between; height: 340px; box-sizing: border-box; }
         .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .card-pill { background-color: #242424; border: 1px solid #383838; border-radius: 20px; padding: 6px 16px; font-size: 11px; color: #aaa; font-weight: 600; }
@@ -79,11 +89,48 @@
             </div>
             <div class="mock-container" style="bottom: -20px; right: 60px; width: 600px; height: 600px; background-color: #0F0F0F;">
                 <div class="mock-browser-bar"><div class="mac-dot"></div><div class="mac-dot"></div><div class="mac-dot"></div></div>
-                <div class="dash-header"><div style="font-weight: bold; font-size: 20px;">SubMatch</div><div style="background-color: #2a2a2a; padding: 6px 12px; border-radius: 20px; font-size: 13px;">12 Words Saved</div></div>
-                <div style="padding: 24px;">
-                    <div class="word-item"><div><div style="font-weight: bold; font-size: 18px; margin-bottom: 4px;">bleach</div><div style="color: #888; font-size: 13px;">çamaşır suyu</div></div><div style="color: #555; font-size: 13px;">Just now</div></div>
-                    <div class="word-item"><div><div style="font-weight: bold; font-size: 18px; margin-bottom: 4px;">inevitable</div><div style="color: #888; font-size: 13px;">kaçınılmaz</div></div><div style="color: #555; font-size: 13px;">2 hrs ago</div></div>
-                    <div class="word-item"><div><div style="font-weight: bold; font-size: 18px; margin-bottom: 4px;">astonishing</div><div style="color: #888; font-size: 13px;">şaşırtıcı</div></div><div style="color: #555; font-size: 13px;">1 day ago</div></div>
+                
+                <div class="search-bar-mock">
+                    <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>
+                    <span class="search-text">Kelime deponuzda arayın...</span>
+                </div>
+
+                <div class="dict-list">
+                    <div class="dict-item">
+                        <div class="dict-content">
+                            <div class="dict-word-row">
+                                <span class="dict-word">serendipity</span>
+                                <span class="dict-speaker"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg></span>
+                            </div>
+                            <div class="dict-trans">tesadüfi mutlu keşif</div>
+                            <div class="dict-sentence">"Finding this cozy cafe was pure serendipity during our rainy walk."</div>
+                        </div>
+                        <div class="dict-delete"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div>
+                    </div>
+
+                    <div class="dict-item">
+                        <div class="dict-content">
+                            <div class="dict-word-row">
+                                <span class="dict-word">inevitable</span>
+                                <span class="dict-speaker"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg></span>
+                            </div>
+                            <div class="dict-trans">kaçınılmaz</div>
+                            <div class="dict-sentence">"Change is inevitable in life, so we must adapt."</div>
+                        </div>
+                        <div class="dict-delete"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div>
+                    </div>
+
+                    <div class="dict-item">
+                        <div class="dict-content">
+                            <div class="dict-word-row">
+                                <span class="dict-word">resilience</span>
+                                <span class="dict-speaker"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg></span>
+                            </div>
+                            <div class="dict-trans">direnç, toparlanma gücü</div>
+                            <div class="dict-sentence">"The team showed great resilience despite losing their best player."</div>
+                        </div>
+                        <div class="dict-delete"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg></div>
+                    </div>
                 </div>
             </div>
         </div>

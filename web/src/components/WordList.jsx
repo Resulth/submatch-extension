@@ -22,7 +22,7 @@ export default function WordList({ words, onDeleteWord }) {
     <div className="max-w-4xl mx-auto my-6 px-4">
       {/* Arama Barı */}
       <div className="relative mb-6">
-        <Search className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
         <input
           type="text"
           placeholder="Kaydedilen kelimelerde veya cümlelerde ara..."
