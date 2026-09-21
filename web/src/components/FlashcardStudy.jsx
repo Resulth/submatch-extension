@@ -117,11 +117,6 @@ export default function FlashcardStudy({ words, onUpdateWord }) {
               <p className="text-sm text-slate-200 italic leading-relaxed">
                 "{currentCard.sentence}"
               </p>
-              {currentCard.sentenceTranslation && currentCard.sentenceTranslation.toLowerCase() !== currentCard.sentence?.toLowerCase() && (
-                <p className="text-xs text-slate-500 italic leading-relaxed mt-2">
-                  {currentCard.sentenceTranslation}
-                </p>
-              )}
             </div>
             <p className="text-xs text-slate-400 mt-6 animate-pulse font-medium">
               💡 Çeviriyi ve detayları görmek için karta tıkla
@@ -135,6 +130,15 @@ export default function FlashcardStudy({ words, onUpdateWord }) {
               <h3 className="text-2xl font-extrabold text-emerald-300">{currentCard.translation}</h3>
             </div>
             
+            {currentCard.sentenceTranslation && currentCard.sentenceTranslation.toLowerCase() !== currentCard.sentence?.toLowerCase() && (
+              <div className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/40">
+                <p className="text-xs text-blue-400 font-semibold mb-1 flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5" /> Cümle Çevirisi
+                </p>
+                <p className="text-sm text-slate-300 italic">"{currentCard.sentenceTranslation}"</p>
+              </div>
+            )}
+
             {currentCard.contextExplanation && (
               <div className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-700/40">
                 <p className="text-xs text-blue-400 font-semibold mb-1 flex items-center gap-1">

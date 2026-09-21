@@ -4,7 +4,7 @@
 // ─── Message router ────────────────────────────────────────────────────────────
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'lookupWord') {
-    handleWordLookup(request.word, request.contextSentence)
+    handleWordLookup(request.word, request.contextSentence, sender.tab?.id)
       .then(data  => sendResponse({ success: true, data }))
       .catch(err  => sendResponse({ success: false, error: err.message }));
     return true; // keep message channel open for async response
@@ -18,25 +18,30 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-// ─── Word lookup ───────────────────────────────────────────────────────────────
-async function handleWordLookup(word, sentence) {
+// ─── Word lookup (two-phase: word first, sentence translation async) ───────────
+async function handleWordLookup(word, sentence, tabId) {
   if (!word?.trim()) throw new Error('Empty word');
 
-  // Detect user's browser language (e.g. "tr", "en", "de")
   const uiLang   = chrome.i18n?.getUILanguage?.() ?? 'en';
   const userLang = uiLang.split('-')[0].toLowerCase();
 
-  try {
-    // Translate word and sentence in parallel for speed
-    const [wordResult, sentenceTranslation] = await Promise.all([
-      googleTranslateLookup(word.trim(), userLang),
-      sentence?.trim() ? translateSentence(sentence.trim(), userLang) : Promise.resolve(''),
-    ]);
-    return { ...wordResult, sentenceTranslation };
-  } catch (err) {
-    console.warn('[SubMatch] Translate failed:', err.message);
-    return { word: word.trim(), translation: '', contextExplanation: '', exampleSentence: '', sentenceTranslation: '' };
+  // Phase 1: translate the word — this is fast, returns immediately
+  const wordResult = await googleTranslateLookup(word.trim(), userLang);
+
+  // Phase 2: translate the sentence in the background (no await here)
+  // Push result to tab via a separate message so popup renders right away
+  if (sentence?.trim() && tabId != null) {
+    translateSentenceWithTimeout(sentence.trim(), userLang, 1500).then(sentenceTranslation => {
+      if (!sentenceTranslation) return;
+      chrome.tabs.sendMessage(tabId, {
+        action: 'sentenceTranslationReady',
+        sentenceTranslation,
+      }).catch(() => {}); // tab may have navigated away — ignore
+    });
   }
+
+  // Return word result immediately (sentenceTranslation will arrive via push)
+  return { ...wordResult, sentenceTranslation: '' };
 }
 
 // ─── Google Translate (free endpoint, no API key required) ─────────────────────
@@ -87,6 +92,17 @@ async function translateSentence(sentence, targetLang) {
     // Google returns the sentence in chunks — join them all
     const parts = json?.[0] ?? [];
     return parts.map(p => p?.[0] ?? '').join('').trim();
+  } catch {
+    return '';
+  }
+}
+
+async function translateSentenceWithTimeout(sentence, targetLang, timeoutMs) {
+  try {
+    return await Promise.race([
+      translateSentence(sentence, targetLang),
+      new Promise(resolve => setTimeout(() => resolve(''), timeoutMs))
+    ]);
   } catch {
     return '';
   }
