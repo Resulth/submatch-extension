@@ -108,21 +108,23 @@ async function saveWordToStorage(wordItem) {
       if (existing >= 0) {
         words[existing] = {
           ...words[existing],
-          translation:        wordItem.translation        ?? words[existing].translation,
-          sentence:           wordItem.sentence           ?? words[existing].sentence,
-          contextExplanation: wordItem.contextExplanation ?? words[existing].contextExplanation,
-          exampleSentence:    wordItem.exampleSentence    ?? words[existing].exampleSentence,
+          translation:         wordItem.translation         ?? words[existing].translation,
+          sentence:            wordItem.sentence            ?? words[existing].sentence,
+          sentenceTranslation: wordItem.sentenceTranslation ?? words[existing].sentenceTranslation ?? '',
+          contextExplanation:  wordItem.contextExplanation  ?? words[existing].contextExplanation,
+          exampleSentence:     wordItem.exampleSentence     ?? words[existing].exampleSentence,
           updatedAt: new Date().toISOString(),
         };
       } else {
         const today = new Date().toISOString().split('T')[0];
         words.unshift({
-          id:                 `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-          word:               wordItem.word               ?? '',
-          translation:        wordItem.translation        ?? '',
-          contextExplanation: wordItem.contextExplanation ?? '',
-          sentence:           wordItem.sentence           ?? '',
-          exampleSentence:    wordItem.exampleSentence    ?? '',
+          id:                  `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          word:                wordItem.word                ?? '',
+          translation:         wordItem.translation         ?? '',
+          contextExplanation:  wordItem.contextExplanation  ?? '',
+          sentence:            wordItem.sentence            ?? '',
+          sentenceTranslation: wordItem.sentenceTranslation ?? '',
+          exampleSentence:     wordItem.exampleSentence     ?? '',
           savedAt:            new Date().toISOString(),
           // SM-2 initial values
           interval:   1,

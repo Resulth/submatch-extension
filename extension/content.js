@@ -263,6 +263,7 @@ function renderResult(popup, data, sentence) {
         translation: data.translation,
         contextExplanation: data.contextExplanation || '',
         sentence,
+        sentenceTranslation: data.sentenceTranslation || '',
         exampleSentence: data.exampleSentence || '',
       }
     }, () => setTimeout(removeActivePopup, 800));

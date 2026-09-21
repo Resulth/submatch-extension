@@ -117,6 +117,11 @@ export default function FlashcardStudy({ words, onUpdateWord }) {
               <p className="text-sm text-slate-200 italic leading-relaxed">
                 "{currentCard.sentence}"
               </p>
+              {currentCard.sentenceTranslation && currentCard.sentenceTranslation.toLowerCase() !== currentCard.sentence?.toLowerCase() && (
+                <p className="text-xs text-slate-500 italic leading-relaxed mt-2">
+                  {currentCard.sentenceTranslation}
+                </p>
+              )}
             </div>
             <p className="text-xs text-slate-400 mt-6 animate-pulse font-medium">
               💡 Çeviriyi ve detayları görmek için karta tıkla
