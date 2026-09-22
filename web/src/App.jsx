@@ -68,7 +68,8 @@ export default function App() {
     }
   };
 
-  const handleDeleteWord = (id) => {
+  const handleDeleteWord = (id, word) => {
+    if (!window.confirm(`"${word}" kelimesini silmek istediğinizden emin misiniz?`)) return;
     const filtered = words.filter(w => w.id !== id);
     saveWords(filtered);
   };
@@ -97,7 +98,7 @@ export default function App() {
 
           <div className="flex gap-2 bg-[#242424] p-1 rounded-full border border-[#383838]">
             <button
-              onClick={() => setActiveTab('study')}
+              onClick={() => { setActiveTab('study'); setIsFlipped(false); }}
               className={`px-5 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'study' ? 'bg-[#F1F1F1] text-[#0F0F0F] font-bold shadow-sm' : 'text-[#AAAAAA] hover:text-white'
               }`}
@@ -105,7 +106,7 @@ export default function App() {
               Kart Çalışması ({words.length})
             </button>
             <button
-              onClick={() => setActiveTab('list')}
+              onClick={() => { setActiveTab('list'); setIsFlipped(false); }}
               className={`px-5 py-1.5 rounded-full text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'list' ? 'bg-[#F1F1F1] text-[#0F0F0F] font-bold shadow-sm' : 'text-[#AAAAAA] hover:text-white'
               }`}
@@ -266,7 +267,7 @@ export default function App() {
                     <p className="text-xs text-[#CCCCCC]">{item.translation}</p>
                     <p className="text-[11px] italic text-[#888888] mt-1">"{item.sentence}"</p>
                   </div>
-                  <button onClick={() => handleDeleteWord(item.id)} className="p-2 text-[#AAAAAA] hover:text-red-400 transition">
+                  <button onClick={() => handleDeleteWord(item.id, item.word)} className="p-2 text-[#AAAAAA] hover:text-red-400 transition">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>

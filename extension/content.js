@@ -282,7 +282,8 @@ function renderResult(popup, data, sentence) {
         translation: data.translation,
         contextExplanation: data.contextExplanation || '',
         sentence,
-        sentenceTranslation: data.sentenceTranslation || '',
+        // Read from currentPopupData so we get sentenceTranslation even if it arrived async
+        sentenceTranslation: (currentPopupData && currentPopupData.sentenceTranslation) || data.sentenceTranslation || '',
         exampleSentence: data.exampleSentence || '',
       }
     }, () => setTimeout(removeActivePopup, 800));
