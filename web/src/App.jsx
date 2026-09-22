@@ -266,6 +266,9 @@ export default function App() {
                     </h4>
                     <p className="text-xs text-[#CCCCCC]">{item.translation}</p>
                     <p className="text-[11px] italic text-[#888888] mt-1">"{item.sentence}"</p>
+                    {item.sentenceTranslation && (
+                      <p className="text-[11px] italic text-[#666666] mt-0.5">"{item.sentenceTranslation}"</p>
+                    )}
                   </div>
                   <button onClick={() => handleDeleteWord(item.id, item.word)} className="p-2 text-[#AAAAAA] hover:text-red-400 transition">
                     <Trash2 className="w-4 h-4" />
