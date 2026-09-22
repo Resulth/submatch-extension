@@ -184,12 +184,19 @@ export default function App() {
                       <h3 className="text-2xl font-bold text-white mt-0.5">{currentCard.translation}</h3>
                     </div>
 
-                    {currentCard.contextExplanation && (
-                      <div className="bg-[#242424] border border-[#383838] p-3.5 rounded-xl">
-                        <span className="text-[10px] font-semibold text-[#AAAAAA] block mb-1">Cümle Bağlamı</span>
-                        <p className="text-xs text-[#CCCCCC] leading-relaxed">{currentCard.contextExplanation}</p>
-                      </div>
-                    )}
+                    {currentCard.sentenceTranslation && (
+                        <div className="bg-[#242424] border border-[#383838] p-3.5 rounded-xl mb-3">
+                          <span className="text-[10px] font-semibold text-[#AAAAAA] block mb-1">Cümle Çevirisi</span>
+                          <p className="text-xs text-[#CCCCCC] leading-relaxed">{currentCard.sentenceTranslation}</p>
+                        </div>
+                      )}
+
+                      {currentCard.contextExplanation && (
+                        <div className="bg-[#242424] border border-[#383838] p-3.5 rounded-xl">
+                          <span className="text-[10px] font-semibold text-[#AAAAAA] block mb-1">Bağlam / Açıklama</span>
+                          <p className="text-xs text-[#CCCCCC] leading-relaxed">{currentCard.contextExplanation}</p>
+                        </div>
+                      )}
                   </div>
                 )}
 
