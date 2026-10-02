@@ -1,4 +1,4 @@
-﻿// SubMatch — Universal Subtitle Word Learner
+// SubMatch — Universal Subtitle Word Learner
 // Zero DOM modification: we never touch subtitle innerHTML.
 // Words are detected via caretRangeFromPoint() on click/hover.
 'use strict';
@@ -210,6 +210,8 @@ function openPopup(word, sentence, wordRect) {
       if (!activePopup || activePopup !== popup) return;
       if (response?.success && response.data) {
         renderResult(popup, response.data, sentence);
+      } else if (response?.error === 'invalidated') {
+        renderError(popup, word, 'Extension updated. Please refresh the page.');
       } else {
         renderError(popup, word);
       }
@@ -290,14 +292,14 @@ function renderResult(popup, data, sentence) {
   });
 }
 
-function renderError(popup, word) {
+function renderError(popup, word, msg = 'Translation unavailable. Try again.') {
   popup.innerHTML = `
     <div class="sm-header">
       <span class="sm-word">${esc(word)}</span>
       <button class="sm-close" aria-label="Close">&times;</button>
     </div>
     <div class="sm-body">
-      <p class="sm-errmsg">Translation unavailable. Try again.</p>
+      <p class="sm-errmsg">${esc(msg)}</p>
     </div>`;
   popup.querySelector('.sm-close').addEventListener('click', removeActivePopup);
 }
@@ -325,14 +327,22 @@ function safelySendMessage(msg, cb) {
     chrome.runtime.sendMessage(msg, res => {
       if (chrome.runtime.lastError) {
         console.warn('[SubMatch]', chrome.runtime.lastError.message);
-        cb?.(null);
+        if (chrome.runtime.lastError.message.includes('Extension context invalidated')) {
+          cb?.({ error: 'invalidated' });
+        } else {
+          cb?.(null);
+        }
         return;
       }
       cb?.(res);
     });
   } catch (err) {
     console.warn('[SubMatch] sendMessage:', err.message);
-    cb?.(null);
+    if (err.message.includes('Extension context invalidated')) {
+      cb?.({ error: 'invalidated' });
+    } else {
+      cb?.(null);
+    }
   }
 }
 
