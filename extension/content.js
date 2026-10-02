@@ -341,3 +341,70 @@ function esc(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
+
+// --- SETTINGS / THEMING LOGIC ---
+let smSettingsStyle = document.createElement('style');
+smSettingsStyle.id = 'sm-settings-style';
+document.head.appendChild(smSettingsStyle);
+
+function smApplySettings(settings) {
+  let css = '';
+  
+  // Underlines
+  if (settings.smUnderline === 'off') {
+    css += 
+      .ytp-caption-segment, .player-timedtext-text, .player-timedtext span, .d24-caption-text, .atv-subtitles-text, .vjs-text-track-display span, .vjs-text-track-cue, .jw-text-track-cue, .jw-text-track-container span, .plyr__caption, .art-subtitle, .fluid_subtitles span, .shaka-text-container span, .clappr-subtitles span, .vp-captions-entry, .ttml-text-container span, .bmpui-ui-subtitle-label, .sub-text, .subtitle-text {
+        text-decoration: none !important;
+      }
+    ;
+  }
+  
+  // Font
+  let fontStr = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+  if (settings.smFont === 'sans') fontStr = 'Arial, Helvetica, sans-serif';
+  if (settings.smFont === 'serif') fontStr = 'Georgia, "Times New Roman", serif';
+  if (settings.smFont === 'mono') fontStr = 'Consolas, monospace';
+  
+  css += 
+    .sm-popup { font-family:  + fontStr +  !important; }
+  ;
+  
+  // Theme
+  const isDarkSystem = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  let isLight = false;
+  if (settings.smTheme === 'light') isLight = true;
+  if (settings.smTheme === 'auto' && !isDarkSystem) isLight = true;
+  
+  if (isLight) {
+    css += 
+      .sm-popup { background: #ffffff !important; color: #1a1a1a !important; border: 1px solid rgba(0,0,0,0.1); }
+      .sm-popup .sm-word { color: #1a1a1a !important; }
+      .sm-popup .sm-tr { color: #666 !important; }
+      .sm-popup .sm-header { border-bottom: 1px solid rgba(0,0,0,0.1) !important; }
+      .sm-popup .sm-close { color: #666 !important; background: rgba(0,0,0,0.05) !important; }
+      .sm-popup .sm-close:hover { background: rgba(0,0,0,0.1) !important; color: #1a1a1a !important; }
+      .sm-popup .sm-sentence { background: #f9f9f9 !important; border: 1px solid rgba(0,0,0,0.05) !important; color: #333 !important; }
+      .sm-popup .sm-sentence-tr { color: #777 !important; }
+      .sm-popup .sm-save { background: #1a1a1a !important; color: #ffffff !important; }
+      .sm-popup .sm-save:hover:not(:disabled) { background: #333 !important; }
+      .sm-popup .sm-save.sm-saved { background: #eee !important; color: #999 !important; }
+      .sm-popup .sm-spinner { border-color: rgba(0,0,0,0.1) !important; border-top-color: #1a1a1a !important; }
+    ;
+  }
+  
+  smSettingsStyle.textContent = css;
+}
+
+chrome.storage.local.get(['smTheme', 'smFont', 'smUnderline'], (res) => {
+  smApplySettings(res);
+});
+
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && (changes.smTheme || changes.smFont || changes.smUnderline)) {
+    chrome.storage.local.get(['smTheme', 'smFont', 'smUnderline'], smApplySettings);
+  }
+});
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  chrome.storage.local.get(['smTheme', 'smFont', 'smUnderline'], smApplySettings);
+});
