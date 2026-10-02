@@ -12,6 +12,15 @@ export default function App() {
 
   useEffect(() => {
     loadWords();
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+      const listener = (changes, namespace) => {
+        if (namespace === 'local' && changes.savedWords) {
+          setWords(changes.savedWords.newValue || []);
+        }
+      };
+      chrome.storage.onChanged.addListener(listener);
+      return () => chrome.storage.onChanged.removeListener(listener);
+    }
   }, []);
 
   const loadWords = () => {
@@ -279,3 +288,4 @@ export default function App() {
     </div>
   );
 }
+

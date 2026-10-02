@@ -342,6 +342,8 @@ function esc(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
+
+
 // --- SETTINGS / THEMING LOGIC ---
 let smSettingsStyle = document.createElement('style');
 smSettingsStyle.id = 'sm-settings-style';
@@ -352,11 +354,11 @@ function smApplySettings(settings) {
   
   // Underlines
   if (settings.smUnderline === 'off') {
-    css += 
+    css += `
       .ytp-caption-segment, .player-timedtext-text, .player-timedtext span, .d24-caption-text, .atv-subtitles-text, .vjs-text-track-display span, .vjs-text-track-cue, .jw-text-track-cue, .jw-text-track-container span, .plyr__caption, .art-subtitle, .fluid_subtitles span, .shaka-text-container span, .clappr-subtitles span, .vp-captions-entry, .ttml-text-container span, .bmpui-ui-subtitle-label, .sub-text, .subtitle-text {
         text-decoration: none !important;
       }
-    ;
+    `;
   }
   
   // Font
@@ -365,9 +367,9 @@ function smApplySettings(settings) {
   if (settings.smFont === 'serif') fontStr = 'Georgia, "Times New Roman", serif';
   if (settings.smFont === 'mono') fontStr = 'Consolas, monospace';
   
-  css += 
-    .sm-popup { font-family:  + fontStr +  !important; }
-  ;
+  css += `
+    .sm-popup { font-family: ${fontStr} !important; }
+  `;
   
   // Theme
   const isDarkSystem = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -376,7 +378,7 @@ function smApplySettings(settings) {
   if (settings.smTheme === 'auto' && !isDarkSystem) isLight = true;
   
   if (isLight) {
-    css += 
+    css += `
       .sm-popup { background: #ffffff !important; color: #1a1a1a !important; border: 1px solid rgba(0,0,0,0.1); }
       .sm-popup .sm-word { color: #1a1a1a !important; }
       .sm-popup .sm-tr { color: #666 !important; }
@@ -389,7 +391,7 @@ function smApplySettings(settings) {
       .sm-popup .sm-save:hover:not(:disabled) { background: #333 !important; }
       .sm-popup .sm-save.sm-saved { background: #eee !important; color: #999 !important; }
       .sm-popup .sm-spinner { border-color: rgba(0,0,0,0.1) !important; border-top-color: #1a1a1a !important; }
-    ;
+    `;
   }
   
   smSettingsStyle.textContent = css;
