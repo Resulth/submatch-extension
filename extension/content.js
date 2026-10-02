@@ -1,4 +1,4 @@
-// SubMatch — Universal Subtitle Word Learner
+﻿// SubMatch — Universal Subtitle Word Learner
 // Zero DOM modification: we never touch subtitle innerHTML.
 // Words are detected via caretRangeFromPoint() on click/hover.
 'use strict';
@@ -238,7 +238,7 @@ function buildLoadingPopup(word) {
   p.innerHTML = `
     <div class="sm-header">
       <span class="sm-word">${esc(word)}</span>
-      <button class="sm-close" aria-label="Close">✕</button>
+      <button class="sm-close" aria-label="Close">&times;</button>
     </div>
     <div class="sm-body"><div class="sm-spinner"></div></div>`;
   return p;
@@ -257,7 +257,7 @@ function renderResult(popup, data, sentence) {
         <span class="sm-word">${esc(data.word)}</span>
         <span class="sm-tr">${esc(data.translation)}</span>
       </div>
-      <button class="sm-close" aria-label="Close">✕</button>
+      <button class="sm-close" aria-label="Close">&times;</button>
     </div>
     <div class="sm-body">
       <p class="sm-sentence">${esc(sentence)}</p>
@@ -294,7 +294,7 @@ function renderError(popup, word) {
   popup.innerHTML = `
     <div class="sm-header">
       <span class="sm-word">${esc(word)}</span>
-      <button class="sm-close" aria-label="Close">✕</button>
+      <button class="sm-close" aria-label="Close">&times;</button>
     </div>
     <div class="sm-body">
       <p class="sm-errmsg">Translation unavailable. Try again.</p>
@@ -410,3 +410,4 @@ chrome.storage.onChanged.addListener((changes, area) => {
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
   chrome.storage.local.get(['smTheme', 'smFont', 'smUnderline'], smApplySettings);
 });
+
