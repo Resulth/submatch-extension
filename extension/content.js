@@ -125,6 +125,8 @@ window.addEventListener('mousemove', e => {
   rafPending = true;
   requestAnimationFrame(() => {
     rafPending = false;
+    // Fast-path: skip expensive hitTest if no video on page
+    if (!document.querySelector('video')) { hideHighlight(); return; }
     const hit = hitTest(e.clientX, e.clientY);
     if (!hit || !hit.rect || hit.rect.width === 0) {
       hideHighlight();
@@ -166,6 +168,8 @@ function hideHighlight() {
 // Registered on WINDOW (highest in capture chain) → fires before player overlay.
 window.addEventListener('pointerdown', e => {
   if (e.button !== 0) return; // left click only
+  // Fast-path: skip on pages without video
+  if (!document.querySelector('video')) return;
 
   const hit = hitTest(e.clientX, e.clientY);
 
@@ -357,7 +361,7 @@ function esc(s) {
 // --- SETTINGS / THEMING LOGIC ---
 let smSettingsStyle = document.createElement('style');
 smSettingsStyle.id = 'sm-settings-style';
-document.head.appendChild(smSettingsStyle);
+(document.head || document.documentElement).appendChild(smSettingsStyle);
 
 function smApplySettings(settings) {
   let css = '';

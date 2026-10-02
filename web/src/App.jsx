@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Volume2, RotateCw, Search, Trash2, Sun, Moon } from 'lucide-react';
 import { calculateSM2, INITIAL_DEMO_WORDS } from './utils/sm2';
 
@@ -6,7 +6,14 @@ import { calculateSM2, INITIAL_DEMO_WORDS } from './utils/sm2';
 const chromeStorage = {
   get: (keys, cb) => {
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-      chrome.storage.local.get(keys, cb);
+      chrome.storage.local.get(keys, (result) => {
+        if (chrome.runtime.lastError) {
+          console.warn('[SubMatch]', chrome.runtime.lastError.message);
+          cb({});
+          return;
+        }
+        cb(result || {});
+      });
     } else {
       const result = {};
       keys.forEach(k => {
@@ -18,7 +25,11 @@ const chromeStorage = {
   },
   set: (obj) => {
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-      chrome.storage.local.set(obj);
+      chrome.storage.local.set(obj, () => {
+        if (chrome.runtime.lastError) {
+          console.warn('[SubMatch] storage set error:', chrome.runtime.lastError.message);
+        }
+      });
     } else {
       Object.entries(obj).forEach(([k, v]) => localStorage.setItem('sm_' + k, JSON.stringify(v)));
     }
@@ -34,9 +45,13 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // ── Settings synced with popup ──────────────────────────────────────────
-  const [theme, setTheme]           = useState('dark');   // 'dark' | 'light' | 'auto'
+  const [theme, setTheme]           = useState('dark');
   const [font, setFont]             = useState('system');
   const [underline, setUnderline]   = useState('on');
+  // Track system dark preference reactively
+  const [systemDark, setSystemDark] = useState(
+    window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
 
   // ── Load settings on mount & listen for changes ────────────────────────
   useEffect(() => {
@@ -58,12 +73,26 @@ export default function App() {
     }
   }, []);
 
+  // ── Listen for OS theme changes (for 'auto' mode) ─────────────────────
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e) => setSystemDark(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
   // ── Load words & live-update on storage change ─────────────────────────
+  const savingRef = React.useRef(false);
+
   useEffect(() => {
     loadWords();
     if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
       const wordsListener = (changes, namespace) => {
         if (namespace === 'local' && changes.savedWords) {
+          if (savingRef.current) {
+            savingRef.current = false;
+            return;
+          }
           setWords(changes.savedWords.newValue || []);
         }
       };
@@ -72,8 +101,17 @@ export default function App() {
     }
   }, []);
 
+  // ── Clamp currentIndex when words change ──────────────────────────────
+  useEffect(() => {
+    if (words.length === 0) {
+      setCurrentIndex(0);
+      setCompleted(false);
+    } else if (currentIndex >= words.length) {
+      setCurrentIndex(words.length - 1);
+    }
+  }, [words.length, currentIndex]);
+
   // ── Resolve effective theme ────────────────────────────────────────────
-  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const isDark = theme === 'dark' || (theme === 'auto' && systemDark);
 
   // ── Toggle theme (button in header) ───────────────────────────────────
@@ -94,29 +132,30 @@ export default function App() {
 
   const loadWords = () => {
     chromeStorage.get(['savedWords'], (result) => {
-      if (result.savedWords && result.savedWords.length > 0) {
-        setWords(result.savedWords);
+      if (result.savedWords && Array.isArray(result.savedWords)) {
+        setWords(result.savedWords.length > 0 ? result.savedWords : INITIAL_DEMO_WORDS);
       } else {
         setWords(INITIAL_DEMO_WORDS);
       }
     });
   };
 
-  const saveWords = (newWords) => {
+  const saveWords = useCallback((newWords) => {
+    savingRef.current = true;
     setWords(newWords);
     chromeStorage.set({ savedWords: newWords });
-  };
+  }, []);
 
-  const speakWord = (text) => {
+  const speakWord = useCallback((text) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
       window.speechSynthesis.speak(utterance);
     }
-  };
+  }, []);
 
-  const currentCard = words[currentIndex];
+  const currentCard = words.length > 0 ? words[currentIndex] : null;
 
   const handleRating = (quality) => {
     if (!currentCard) return;
@@ -138,9 +177,12 @@ export default function App() {
     saveWords(filtered);
   };
 
-  const filteredWords = words.filter(item =>
-    item.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.translation.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredWords = useMemo(() =>
+    words.filter(item =>
+      item.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.translation.toLowerCase().includes(searchTerm.toLowerCase())
+    ),
+    [words, searchTerm]
   );
 
   // ── Theme-aware colour palette ────────────────────────────────────────
@@ -212,20 +254,21 @@ export default function App() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {/* Theme toggle */}
             <button
               onClick={toggleTheme}
               title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               style={{ background: c.innerBg, border: `1px solid ${c.innerBorder}`, borderRadius: 999, padding: '6px 10px', cursor: 'pointer', color: c.textMuted, display: 'flex', alignItems: 'center', transition: 'background 0.15s' }}
             >
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
 
-            {/* Tab switcher */}
-            <div style={{ display: 'flex', gap: 4, background: c.innerBg, padding: 4, borderRadius: 999, border: `1px solid ${c.innerBorder}` }}>
+            <div role="tablist" style={{ display: 'flex', gap: 4, background: c.innerBg, padding: 4, borderRadius: 999, border: `1px solid ${c.innerBorder}` }}>
               {[['study', `Kart Çalışması (${words.length})`], ['list', 'Kelime Deposu']].map(([tab, label]) => (
                 <button
                   key={tab}
+                  role="tab"
+                  aria-selected={activeTab === tab}
                   onClick={() => { setActiveTab(tab); setIsFlipped(false); }}
                   style={{
                     padding: '6px 16px',
@@ -263,22 +306,24 @@ export default function App() {
                 <RotateCw size={14} /> Seansı Tekrar Başlat
               </button>
             </div>
-          ) : words.length === 0 ? (
+          ) : !currentCard ? (
             <div style={{ textAlign: 'center', padding: '80px 0', color: c.textMuted }}>
               <p style={{ fontSize: 14 }}>Çalışılacak kelime bulunamadı.</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-              {/* Progress */}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: c.textMuted, fontWeight: 500 }}>
                 <span>Kart {currentIndex + 1} / {words.length}</span>
                 <span>Anki / SM-2 Algoritması</span>
               </div>
 
-              {/* Card */}
               <div
+                role="button"
+                tabIndex={0}
                 onClick={() => setIsFlipped(!isFlipped)}
-                style={{ background: c.cardBg, border: `1px solid ${c.cardBorder}`, borderRadius: 20, padding: 32, minHeight: 340, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', cursor: 'pointer', transition: 'border-color 0.15s' }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsFlipped(!isFlipped); } }}
+                aria-label={isFlipped ? 'Kelime yüzünü göster' : 'Çeviriyi göster'}
+                style={{ background: c.cardBg, border: `1px solid ${c.cardBorder}`, borderRadius: 20, padding: 32, minHeight: 340, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', cursor: 'pointer', transition: 'border-color 0.15s', outline: 'none' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: c.textMuted, padding: '4px 12px', background: c.tagBg, borderRadius: 999, border: `1px solid ${c.tagBorder}` }}>
@@ -288,6 +333,7 @@ export default function App() {
                     onClick={(e) => { e.stopPropagation(); speakWord(currentCard.word); }}
                     style={{ padding: 8, background: c.speakBtn, borderRadius: '50%', color: c.text, border: 'none', cursor: 'pointer', display: 'flex', transition: 'background 0.12s' }}
                     title="Okunuşu Dinle"
+                    aria-label="Okunuşu Dinle"
                   >
                     <Volume2 size={16} />
                   </button>
@@ -322,7 +368,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Rating buttons */}
               {isFlipped && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
                   {[
@@ -354,7 +399,6 @@ export default function App() {
             </div>
           )
         ) : (
-          /* Collection Tab */
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div style={{ position: 'relative' }}>
               <div style={{ position: 'absolute', left: 16, top: 0, bottom: 0, display: 'flex', alignItems: 'center', pointerEvents: 'none' }}>
@@ -378,7 +422,7 @@ export default function App() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h4 style={{ fontWeight: 700, fontSize: 15, color: c.text, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                       {item.word}
-                      <button onClick={() => speakWord(item.word)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: c.textMuted, display: 'flex', padding: 0 }}>
+                      <button onClick={() => speakWord(item.word)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: c.textMuted, display: 'flex', padding: 0 }} aria-label={`${item.word} kelimesini sesli oku`}>
                         <Volume2 size={13} />
                       </button>
                     </h4>
@@ -388,7 +432,7 @@ export default function App() {
                       <p style={{ fontSize: 11, fontStyle: 'italic', color: c.textDim, marginTop: 2 }}>"{item.sentenceTranslation}"</p>
                     )}
                   </div>
-                  <button onClick={() => handleDeleteWord(item.id, item.word)} style={{ padding: 8, color: c.textMuted, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexShrink: 0, transition: 'color 0.15s' }}>
+                  <button onClick={() => handleDeleteWord(item.id, item.word)} style={{ padding: 8, color: c.textMuted, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexShrink: 0, transition: 'color 0.15s' }} aria-label={`${item.word} kelimesini sil`}>
                     <Trash2 size={15} />
                   </button>
                 </div>
