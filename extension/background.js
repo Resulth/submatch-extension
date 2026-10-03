@@ -18,30 +18,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-// ─── Word lookup (two-phase: word first, sentence translation async) ───────────
+// ─── Word lookup (parallel: word + sentence together) ───────────────────────
 async function handleWordLookup(word, sentence, tabId) {
   if (!word?.trim()) throw new Error('Empty word');
 
-  const uiLang   = chrome.i18n?.getUILanguage?.() ?? 'en';
+  const uiLang   = chrome.i18n.getUILanguage() ?? 'en';
   const userLang = uiLang.split('-')[0].toLowerCase();
 
-  // Phase 1: translate the word — this is fast, returns immediately
-  const wordResult = await googleTranslateLookup(word.trim(), userLang);
+  // Fetch word translation and sentence translation in parallel
+  const [wordResult, sentenceTranslation] = await Promise.all([
+    googleTranslateLookup(word.trim(), userLang),
+    sentence?.trim()
+      ? translateSentenceWithTimeout(sentence.trim(), userLang, 3000)
+      : Promise.resolve(''),
+  ]);
 
-  // Phase 2: translate the sentence in the background (no await here)
-  // Push result to tab via a separate message so popup renders right away
-  if (sentence?.trim() && tabId != null) {
-    translateSentenceWithTimeout(sentence.trim(), userLang, 1500).then(sentenceTranslation => {
-      if (!sentenceTranslation) return;
-      chrome.tabs.sendMessage(tabId, {
-        action: 'sentenceTranslationReady',
-        sentenceTranslation,
-      }).catch(() => {}); // tab may have navigated away — ignore
-    });
-  }
-
-  // Return word result immediately (sentenceTranslation will arrive via push)
-  return { ...wordResult, sentenceTranslation: '' };
+  return { ...wordResult, sentenceTranslation: sentenceTranslation || '' };
 }
 
 // ─── Google Translate (free endpoint, no API key required) ─────────────────────

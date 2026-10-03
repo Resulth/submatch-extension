@@ -10,21 +10,8 @@ let hoverHighlight = null;
 let rafPending     = false; // requestAnimationFrame throttle for mousemove
 let currentPopupData = null; // Holds the active word data for async updates
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'sentenceTranslationReady' && activePopup && currentPopupData) {
-    const sentTr = request.sentenceTranslation || '';
-    if (sentTr && sentTr.toLowerCase() !== currentPopupData.sentence?.toLowerCase()) {
-      currentPopupData.sentenceTranslation = sentTr;
-      if (!activePopup.querySelector('.sm-sentence-tr')) {
-         const p = document.createElement('p');
-         p.className = 'sm-sentence-tr';
-         p.textContent = sentTr;
-         const sentenceEl = activePopup.querySelector('.sm-sentence');
-         if (sentenceEl) sentenceEl.insertAdjacentElement('afterend', p);
-      }
-    }
-  }
-});
+
+
 
 // ─── Subtitle container selectors ─────────────────────────────────────────────
 const CONTAINERS = [
