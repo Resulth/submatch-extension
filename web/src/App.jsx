@@ -357,6 +357,8 @@ export default function App() {
               </div>
 
               <div
+                key={currentCard.id}
+                className="sm-card-enter"
                 role="button"
                 tabIndex={0}
                 onClick={() => setIsFlipped(!isFlipped)}
@@ -459,7 +461,7 @@ export default function App() {
                 <p style={{ textAlign: 'center', color: c.textMuted, fontSize: 13, padding: 40 }}>{t('list.empty')}</p>
               )}
               {filteredWords.map((item) => (
-                <div key={item.id} style={{ padding: 16, background: c.cardBg, border: `1px solid ${c.cardBorder}`, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'border-color 0.15s' }}>
+                <div key={item.id} className="sm-row-enter" style={{ padding: 16, background: c.cardBg, border: `1px solid ${c.cardBorder}`, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'border-color 0.15s' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h4 style={{ fontWeight: 700, fontSize: 15, color: c.text, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                       {item.word}

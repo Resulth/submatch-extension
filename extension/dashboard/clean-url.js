@@ -1,1 +1,1 @@
-﻿window.history.replaceState(null, '', '/dashboard/');
+window.history.replaceState(null, '', '/dashboard/');

@@ -135,35 +135,68 @@
       margin-top: 16px;
       line-height: 1.4;
     }
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 7px;
+    }
+    .top-row h2 { margin-bottom: 0; }
+    .lang-switch {
+      display: inline-flex;
+      background: var(--select-bg);
+      border: 1px solid var(--select-border);
+      border-radius: 999px;
+      padding: 2px;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+    .lang-btn {
+      appearance: none; border: none; background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 10px; font-weight: 700;
+      padding: 3px 8px; border-radius: 999px; cursor: pointer;
+      transition: background 0.15s, color 0.15s; line-height: 1;
+    }
+    .lang-btn:hover { color: var(--text); }
+    .lang-btn.active { background: var(--btn-bg); color: var(--btn-text); }
   </style>
 </head>
 <body>
   <img src="icons/icon48.png" class="logo" alt="SubMatch" />
 
-  <h2>SubMatch</h2>
-  <p>Click any subtitle word while watching a video to translate and save it.</p>
+  <div class="top-row">
+    <h2>SubMatch</h2>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="tr">TR</button>
+    </div>
+  </div>
+  <p data-i18n="desc">Click any subtitle word while watching a video to translate and save it.</p>
 
   <button id="openWebBtn" class="btn">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M2 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/>
-      <path d="M6 2h12a2 2 0 0 1 2 2v12" opacity="0.35"/>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 2 2 7l10 5 10-5-10-5z"/>
+      <path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>
     </svg>
-    My Flashcards
+    <span data-i18n="myCards">My Flashcards</span>
   </button>
 
   <div class="divider"></div>
 
   <div class="settings">
     <div class="setting-row">
-      <span>Theme</span>
+      <span data-i18n="theme">Theme</span>
       <select id="themeSelect">
-        <option value="auto">System</option>
-        <option value="dark">Dark</option>
-        <option value="light">Light</option>
+        <option value="auto" data-i18n="sysOpt">System</option>
+        <option value="dark" data-i18n="darkOpt">Dark</option>
+        <option value="light" data-i18n="lightOpt">Light</option>
       </select>
     </div>
     <div class="setting-row">
-      <span>Font</span>
+      <span data-i18n="font">Font</span>
       <select id="fontSelect">
         <option value="system">System</option>
         <option value="sans">Sans-serif</option>
@@ -172,15 +205,15 @@
       </select>
     </div>
     <div class="setting-row">
-      <span>Underlines</span>
+      <span data-i18n="underline">Underlines</span>
       <select id="underlineSelect">
-        <option value="on">On</option>
-        <option value="off">Off</option>
+        <option value="on" data-i18n="onOpt">On</option>
+        <option value="off" data-i18n="offOpt">Off</option>
       </select>
     </div>
   </div>
 
-  <p class="hint">Works on YouTube, Netflix, Disney+, Amazon Prime &amp; more.</p>
+  <p class="hint"><span data-i18n="hint">Works on YouTube, Netflix, Disney+, Amazon Prime &amp; more.</span></p>
 
   <script src="popup.js"></script>
 </body>

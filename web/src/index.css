@@ -53,3 +53,27 @@ body::before {
     radial-gradient(500px circle at 90% 10%, rgba(255,255,255,0.035), transparent 60%);
 }
 
+/* ── Kart giriş animasyonu (3B) ───────────────────────────────── */
+.sm-card-enter {
+  animation: smCardEnter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes smCardEnter {
+  from { opacity: 0; transform: perspective(1200px) rotateY(28deg) translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: perspective(1200px) rotateY(0deg) translateY(0) scale(1); }
+}
+
+/* Kelime listesi satır belirme animasyonu */
+.sm-row-enter {
+  animation: smRowEnter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes smRowEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Hareket azaltma tercihine saygı */
+@media (prefers-reduced-motion: reduce) {
+  .sm-card-enter, .sm-row-enter { animation: none; }
+}
+
+
