@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Volume2, RotateCw, Search, Trash2, Sun, Moon } from 'lucide-react';
 import { calculateSM2, INITIAL_DEMO_WORDS } from './utils/sm2';
+import { STRINGS, getDashLang } from './strings';
 
 // ── Chrome storage helper (safe for non-extension context) ──────────────
 const chromeStorage = {
@@ -37,6 +38,7 @@ const chromeStorage = {
 };
 
 export default function App() {
+  const [lang, setLang]           = useState(getDashLang);
   const [activeTab, setActiveTab]   = useState('study');
   const [words, setWords]           = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -80,6 +82,11 @@ export default function App() {
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, []);
+
+  // ── Persist dashboard language choice ─────────────────────────────────
+  useEffect(() => {
+    try { localStorage.setItem('sm_dash_lang', lang); } catch (e) {}
+  }, [lang]);
 
   // ── Load words & live-update on storage change ─────────────────────────
   const savingRef = React.useRef(false);
@@ -172,7 +179,7 @@ export default function App() {
   };
 
   const handleDeleteWord = (id, word) => {
-    if (!window.confirm(`"${word}" kelimesini silmek istediğinizden emin misiniz?`)) return;
+    if (!window.confirm(t('confirm.delete', word))) return;
     const filtered = words.filter(w => w.id !== id);
     saveWords(filtered);
   };
@@ -238,6 +245,22 @@ export default function App() {
     tagBorder:  '#E0E0E0',
   };
 
+  // ── Translation helper ────────────────────────────────────────────────
+  const t = (key, ...args) => {
+    const v = STRINGS[lang][key];
+    return typeof v === 'function' ? v(...args) : v;
+  };
+
+  // ── 3D tilt handler (mouse'u takip eden hafif eğim) ──────────────────
+  const handleCardTilt = (e) => {
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    el.style.transform = `perspective(1200px) rotateY(${(px * 6).toFixed(2)}deg) rotateX(${(-py * 6).toFixed(2)}deg)`;
+  };
+  const resetCardTilt = (e) => { e.currentTarget.style.transform = ''; };
+
   return (
     <div style={{ minHeight: '100vh', background: c.bg, color: c.text, display: 'flex', flexDirection: 'column', fontFamily, transition: 'background 0.2s, color 0.2s' }}>
 
@@ -263,8 +286,24 @@ export default function App() {
               {isDark ? <Sun size={14} /> : <Moon size={14} />}
             </button>
 
+            <div style={{ display: 'flex', gap: 2, background: c.innerBg, padding: 3, borderRadius: 999, border: `1px solid ${c.innerBorder}` }} role="group" aria-label="Language">
+              {['en', 'tr'].map(l => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  style={{
+                    padding: '4px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700,
+                    cursor: 'pointer', border: 'none', letterSpacing: '0.02em',
+                    background: lang === l ? c.pill : 'transparent',
+                    color: lang === l ? c.pillText : c.textMuted,
+                    transition: 'background 0.15s, color 0.15s',
+                  }}
+                >{l.toUpperCase()}</button>
+              ))}
+            </div>
+
             <div role="tablist" style={{ display: 'flex', gap: 4, background: c.innerBg, padding: 4, borderRadius: 999, border: `1px solid ${c.innerBorder}` }}>
-              {[['study', `Kart Çalışması (${words.length})`], ['list', 'Kelime Deposu']].map(([tab, label]) => (
+              {[['study', t('tab.study', words.length)], ['list', t('tab.list')]].map(([tab, label]) => (
                 <button
                   key={tab}
                   role="tab"
@@ -297,24 +336,24 @@ export default function App() {
           completed ? (
             <div style={{ textAlign: 'center', background: c.cardBg, border: `1px solid ${c.cardBorder}`, borderRadius: 20, padding: 32, boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}>
               <div style={{ width: 48, height: 48, background: c.pill, color: c.pillText, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontWeight: 700, fontSize: 20 }}>✓</div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: c.text }}>Tebrikler! Seans Tamamlandı</h2>
-              <p style={{ color: c.textMuted, fontSize: 12, marginBottom: 24 }}>Aralıklı tekrar algoritması kelime tekrar tarihlerinizi güncelledi.</p>
+              <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 8, color: c.text }}>{t('done.title')}</h2>
+              <p style={{ color: c.textMuted, fontSize: 12, marginBottom: 24 }}>{t('done.desc')}</p>
               <button
                 onClick={() => { setCurrentIndex(0); setIsFlipped(false); setCompleted(false); }}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 24px', background: c.pill, color: c.pillText, fontWeight: 600, fontSize: 12, borderRadius: 999, border: 'none', cursor: 'pointer', transition: 'background 0.15s' }}
               >
-                <RotateCw size={14} /> Seansı Tekrar Başlat
+                <RotateCw size={14} /> {t('done.restart')}
               </button>
             </div>
           ) : !currentCard ? (
             <div style={{ textAlign: 'center', padding: '80px 0', color: c.textMuted }}>
-              <p style={{ fontSize: 14 }}>Çalışılacak kelime bulunamadı.</p>
+              <p style={{ fontSize: 14 }}>{t('empty')}</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: c.textMuted, fontWeight: 500 }}>
-                <span>Kart {currentIndex + 1} / {words.length}</span>
-                <span>Anki / SM-2 Algoritması</span>
+                <span>{t('card.count', currentIndex + 1, words.length)}</span>
+                <span>{t('card.algo')}</span>
               </div>
 
               <div
@@ -322,18 +361,20 @@ export default function App() {
                 tabIndex={0}
                 onClick={() => setIsFlipped(!isFlipped)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setIsFlipped(!isFlipped); } }}
-                aria-label={isFlipped ? 'Kelime yüzünü göster' : 'Çeviriyi göster'}
-                style={{ background: c.cardBg, border: `1px solid ${c.cardBorder}`, borderRadius: 20, padding: 32, minHeight: 340, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', cursor: 'pointer', transition: 'border-color 0.15s', outline: 'none' }}
+                onMouseMove={handleCardTilt}
+                onMouseLeave={resetCardTilt}
+                aria-label={isFlipped ? t('card.backAria') : t('card.frontAria')}
+                style={{ background: c.cardBg, border: `1px solid ${c.cardBorder}`, borderRadius: 20, padding: 32, minHeight: 340, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', cursor: 'pointer', transition: 'transform 0.1s ease-out, border-color 0.15s', outline: 'none', transformStyle: 'preserve-3d', willChange: 'transform' }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: c.textMuted, padding: '4px 12px', background: c.tagBg, borderRadius: 999, border: `1px solid ${c.tagBorder}` }}>
-                    {isFlipped ? 'Çeviri ve Detaylar' : 'Hedef Kelime'}
+                    {isFlipped ? t('card.tagBack') : t('card.tagFront')}
                   </span>
                   <button
                     onClick={(e) => { e.stopPropagation(); speakWord(currentCard.word); }}
                     style={{ padding: 8, background: c.speakBtn, borderRadius: '50%', color: c.text, border: 'none', cursor: 'pointer', display: 'flex', transition: 'background 0.12s' }}
-                    title="Okunuşu Dinle"
-                    aria-label="Okunuşu Dinle"
+                    title={t('card.listen')}
+                    aria-label={t('card.listen')}
                   >
                     <Volume2 size={16} />
                   </button>
@@ -345,17 +386,17 @@ export default function App() {
                     <div style={{ background: c.innerBg, border: `1px solid ${c.innerBorder}`, padding: 16, borderRadius: 12, maxWidth: 400, margin: '0 auto' }}>
                       <p style={{ fontSize: 12, fontStyle: 'italic', color: c.textSub, lineHeight: 1.6 }}>"{currentCard.sentence}"</p>
                     </div>
-                    <span style={{ display: 'inline-block', marginTop: 24, fontSize: 11, color: c.textHint, fontWeight: 500 }}>Çeviriyi görmek için karta tıklayın</span>
+                    <span style={{ display: 'inline-block', marginTop: 24, fontSize: 11, color: c.textHint, fontWeight: 500 }}>{t('card.clickHint')}</span>
                   </div>
                 ) : (
                   <div style={{ margin: 'auto 0', display: 'flex', flexDirection: 'column', gap: 16, textAlign: 'left', padding: '8px 0' }}>
                     <div>
-                      <span style={{ fontSize: 10, textTransform: 'uppercase', fontWeight: 600, color: c.textMuted }}>Türkçe Çevirisi</span>
+                      <span style={{ fontSize: 10, textTransform: 'uppercase', fontWeight: 600, color: c.textMuted }}>{t('card.trLabel')}</span>
                       <h3 style={{ fontSize: 24, fontWeight: 700, color: c.text, marginTop: 2 }}>{currentCard.translation}</h3>
                     </div>
                     {currentCard.sentenceTranslation && (
                       <div style={{ background: c.innerBg, border: `1px solid ${c.innerBorder}`, padding: 14, borderRadius: 12 }}>
-                        <span style={{ fontSize: 10, fontWeight: 600, color: c.textMuted, display: 'block', marginBottom: 4 }}>Cümle Çevirisi</span>
+                        <span style={{ fontSize: 10, fontWeight: 600, color: c.textMuted, display: 'block', marginBottom: 4 }}>{t('card.sentTr')}</span>
                         <p style={{ fontSize: 12, color: c.textSub, lineHeight: 1.6 }}>{currentCard.sentenceTranslation}</p>
                       </div>
                     )}
@@ -363,18 +404,18 @@ export default function App() {
                 )}
 
                 <div style={{ fontSize: 11, color: c.textHint, borderTop: `1px solid ${c.cardBorder}`, paddingTop: 12, display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-                  <span>Tekrar Sayısı: {currentCard.repetition || 0}</span>
-                  <span>Aralık: {currentCard.interval || 1} gün</span>
+                  <span>{t('card.reps')}: {currentCard.repetition || 0}</span>
+                  <span>{t('card.interval')}: {currentCard.interval || 1} {t('card.intervalUnit')}</span>
                 </div>
               </div>
 
               {isFlipped && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
                   {[
-                    { quality: 1, label: 'Unuttum', primary: false },
-                    { quality: 3, label: 'Zor',     primary: false },
-                    { quality: 4, label: 'İyi',     primary: false },
-                    { quality: 5, label: 'Çok Kolay', primary: true },
+                    { quality: 1, label: t('rating.again'), primary: false },
+                    { quality: 3, label: t('rating.hard'), primary: false },
+                    { quality: 4, label: t('rating.good'), primary: false },
+                    { quality: 5, label: t('rating.easy'), primary: true },
                   ].map(({ quality, label, primary }) => (
                     <button
                       key={quality}
@@ -406,7 +447,7 @@ export default function App() {
               </div>
               <input
                 type="text"
-                placeholder="Kelime deponuzda arayın..."
+                placeholder={t('list.search')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{ width: '100%', paddingLeft: 44, paddingRight: 16, paddingTop: 10, paddingBottom: 10, background: c.inputBg, border: `1px solid ${c.inputBorder}`, borderRadius: 999, fontSize: 12, color: c.text, outline: 'none', boxSizing: 'border-box', fontFamily }}
@@ -415,14 +456,14 @@ export default function App() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {filteredWords.length === 0 && (
-                <p style={{ textAlign: 'center', color: c.textMuted, fontSize: 13, padding: 40 }}>Kelime bulunamadı.</p>
+                <p style={{ textAlign: 'center', color: c.textMuted, fontSize: 13, padding: 40 }}>{t('list.empty')}</p>
               )}
               {filteredWords.map((item) => (
                 <div key={item.id} style={{ padding: 16, background: c.cardBg, border: `1px solid ${c.cardBorder}`, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'border-color 0.15s' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <h4 style={{ fontWeight: 700, fontSize: 15, color: c.text, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
                       {item.word}
-                      <button onClick={() => speakWord(item.word)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: c.textMuted, display: 'flex', padding: 0 }} aria-label={`${item.word} kelimesini sesli oku`}>
+                      <button onClick={() => speakWord(item.word)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: c.textMuted, display: 'flex', padding: 0 }} aria-label={t('list.speak', item.word)}>
                         <Volume2 size={13} />
                       </button>
                     </h4>
@@ -432,7 +473,7 @@ export default function App() {
                       <p style={{ fontSize: 11, fontStyle: 'italic', color: c.textDim, marginTop: 2 }}>"{item.sentenceTranslation}"</p>
                     )}
                   </div>
-                  <button onClick={() => handleDeleteWord(item.id, item.word)} style={{ padding: 8, color: c.textMuted, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexShrink: 0, transition: 'color 0.15s' }} aria-label={`${item.word} kelimesini sil`}>
+                  <button onClick={() => handleDeleteWord(item.id, item.word)} style={{ padding: 8, color: c.textMuted, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexShrink: 0, transition: 'color 0.15s' }} aria-label={t('list.delete', item.word)}>
                     <Trash2 size={15} />
                   </button>
                 </div>
@@ -443,7 +484,7 @@ export default function App() {
       </main>
 
       <footer style={{ borderTop: `1px solid ${c.headerBorder}`, padding: '24px 0', textAlign: 'center', fontSize: 11, color: c.textHint, fontWeight: 500 }}>
-        SubMatch · Universal Subtitle Language Learning Companion
+        {t('footer')}
       </footer>
     </div>
   );
