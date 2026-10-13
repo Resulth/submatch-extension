@@ -3,6 +3,38 @@
 // Words are detected via caretRangeFromPoint() on click/hover.
 'use strict';
 
+// ─── i18n (TR/EN) — chrome.storage.local ile paylaşılır ───
+const CONTENT_STRINGS = {
+  en: {
+    close: 'Close',
+    save: 'Save to cards',
+    saved: 'Saved',
+    errDefault: 'Translation unavailable. Try again.',
+    errUpdated: 'Extension updated. Please refresh the page.',
+  },
+  tr: {
+    close: 'Kapat',
+    save: 'Kartlara Kaydet',
+    saved: 'Kaydedildi',
+    errDefault: 'Çeviri alınamadı. Tekrar deneyin.',
+    errUpdated: 'Eklenti güncellendi. Lütfen sayfayı yenileyin.',
+  },
+};
+let contentLang = 'en';
+function ct(key) { return (CONTENT_STRINGS[contentLang] || CONTENT_STRINGS.en)[key]; }
+function smLoadLang() {
+  try {
+    chrome.storage.local.get('sm_website_lang', r => {
+      const l = r && r.sm_website_lang;
+      if (l === 'tr' || l === 'en') contentLang = l;
+      else contentLang = (navigator.language || 'en').toLowerCase().indexOf('tr') === 0 ? 'tr' : 'en';
+    });
+  } catch (e) {
+    contentLang = (navigator.language || 'en').toLowerCase().indexOf('tr') === 0 ? 'tr' : 'en';
+  }
+}
+smLoadLang();
+
 // ─── State ────────────────────────────────────────────────────────────────────
 let activePopup    = null;
 let pausedByUs     = false;
@@ -202,7 +234,7 @@ function openPopup(word, sentence, wordRect) {
       if (response?.success && response.data) {
         renderResult(popup, response.data, sentence);
       } else if (response?.error === 'invalidated') {
-        renderError(popup, word, 'Extension updated. Please refresh the page.');
+        renderError(popup, word, ct('errUpdated'));
       } else {
         renderError(popup, word);
       }
@@ -231,7 +263,7 @@ function buildLoadingPopup(word) {
   p.innerHTML = `
     <div class="sm-header">
       <span class="sm-word">${esc(word)}</span>
-      <button class="sm-close" aria-label="Close">&times;</button>
+      <button class="sm-close" aria-label="${ct('close')}">&times;</button>
     </div>
     <div class="sm-body"><div class="sm-spinner"></div></div>`;
   return p;
@@ -250,7 +282,7 @@ function renderResult(popup, data, sentence) {
         <span class="sm-word">${esc(data.word)}</span>
         <span class="sm-tr">${esc(data.translation)}</span>
       </div>
-      <button class="sm-close" aria-label="Close">&times;</button>
+      <button class="sm-close" aria-label="${ct('close')}">&times;</button>
     </div>
     <div class="sm-body">
       <p class="sm-sentence">${esc(sentence)}</p>
@@ -259,14 +291,14 @@ function renderResult(popup, data, sentence) {
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
         </svg>
-        Save to cards
+        ${ct('save')}
       </button>
     </div>`;
   popup.querySelector('.sm-close').addEventListener('click', removeActivePopup);
   popup.querySelector('.sm-save').addEventListener('click', () => {
     const btn = popup.querySelector('.sm-save');
     btn.disabled = true;
-    btn.innerHTML = '<span style="color: #10b981; font-weight: bold; margin-right: 4px;">✓</span> Saved';
+    btn.innerHTML = '<span style="color: #10b981; font-weight: bold; margin-right: 4px;">✓</span> ' + ct('saved');
     btn.classList.add('sm-saved');
     safelySendMessage({
       action: 'saveWord',
@@ -283,11 +315,11 @@ function renderResult(popup, data, sentence) {
   });
 }
 
-function renderError(popup, word, msg = 'Translation unavailable. Try again.') {
+function renderError(popup, word, msg = ct('errDefault')) {
   popup.innerHTML = `
     <div class="sm-header">
       <span class="sm-word">${esc(word)}</span>
-      <button class="sm-close" aria-label="Close">&times;</button>
+      <button class="sm-close" aria-label="${ct('close')}">&times;</button>
     </div>
     <div class="sm-body">
       <p class="sm-errmsg">${esc(msg)}</p>

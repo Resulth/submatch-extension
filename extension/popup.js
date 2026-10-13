@@ -6,7 +6,7 @@ const POPUP_STRINGS = {
     desc: "Click any subtitle word while watching a video to translate and save it.",
     myCards: "My Flashcards",
     theme: "Theme", font: "Font", underline: "Underlines",
-    sysOpt: "System", darkOpt: "Dark", lightOpt: "Light",
+    sysOpt: "System", fontSysOpt: "System", darkOpt: "Dark", lightOpt: "Light",
     onOpt: "On", offOpt: "Off",
     hint: "Works on YouTube, Netflix, Disney+, Amazon Prime & more."
   },
@@ -14,7 +14,7 @@ const POPUP_STRINGS = {
     desc: "Video izlerken çeviri yapıp kaydetmek için altyazıdaki bir kelimeye tıklayın.",
     myCards: "Flashcard'larım",
     theme: "Tema", font: "Yazı Tipi", underline: "Alt Çizgiler",
-    sysOpt: "Sistem", darkOpt: "Koyu", lightOpt: "Açık",
+    sysOpt: "Sistem", fontSysOpt: "Sistem", darkOpt: "Koyu", lightOpt: "Açık",
     onOpt: "Açık", offOpt: "Kapalı",
     hint: "YouTube, Netflix, Disney+, Amazon Prime ve daha fazlasında çalışır."
   }
@@ -38,6 +38,7 @@ function applyPopupLang(lang) {
     b.classList.toggle("active", b.getAttribute("data-lang") === lang);
   });
   try { localStorage.setItem("sm_website_lang", lang); } catch (e) {}
+  try { chrome.storage.local.set({ sm_website_lang: lang }); } catch (e) {}
 }
 
 document.addEventListener("DOMContentLoaded", () => {
