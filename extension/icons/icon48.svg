@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="48" height="48" rx="9" fill="#0f0f0f" />
+  <path d="M16 10 L32 10 L32 24 L21 24 L21 38 L32 38 L32 28 L23 28 L23 21 L35 21 L35 17 L16 17 Z" fill="url(#purpleGrad)" />
+</svg>
