@@ -8,7 +8,7 @@ const POPUP_STRINGS = {
     theme: "Theme", font: "Font", underline: "Underlines",
     sysOpt: "System", fontSysOpt: "System", darkOpt: "Dark", lightOpt: "Light",
     onOpt: "On", offOpt: "Off",
-    patreonSupport: "Support on Patreon",
+    patreonSupport: "Support",
     hint: "Works on YouTube, Netflix, Disney+, Amazon Prime & more."
   },
   tr: {
@@ -17,7 +17,7 @@ const POPUP_STRINGS = {
     theme: "Tema", font: "Yazı Tipi", underline: "Alt Çizgiler",
     sysOpt: "Sistem", fontSysOpt: "Sistem", darkOpt: "Koyu", lightOpt: "Açık",
     onOpt: "Açık", offOpt: "Kapalı",
-    patreonSupport: "Patreon'da Destek Ol",
+    patreonSupport: "Destekle",
     hint: "YouTube, Netflix, Disney+, Amazon Prime ve daha fazlasında çalışır."
   }
 };

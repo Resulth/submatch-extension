@@ -35,7 +35,7 @@
 
     body {
       width: 260px;
-      padding: 24px 20px 20px;
+      padding: 18px 20px 20px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
       background-color: var(--bg);
       color: var(--text);
@@ -47,11 +47,78 @@
       transition: background-color 0.2s, color 0.2s;
     }
 
+    .header-bar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    /* Web sitesindeki aynı şık Patreon butonu */
+    .btn-patreon {
+      background: linear-gradient(135deg, rgba(255, 66, 77, 0.12) 0%, rgba(255, 107, 107, 0.06) 100%);
+      border: 1px solid rgba(255, 66, 77, 0.32);
+      color: #FF6670;
+      padding: 5px 11px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      gap: 5px;
+      border-radius: 20px;
+      box-shadow: 0 2px 8px rgba(255, 66, 77, 0.08);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .btn-patreon:hover {
+      background: linear-gradient(135deg, rgba(255, 66, 77, 0.22) 0%, rgba(255, 107, 107, 0.12) 100%);
+      border-color: rgba(255, 66, 77, 0.55);
+      color: #FF7B84;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(255, 66, 77, 0.2);
+    }
+    body.light-mode .btn-patreon {
+      background: linear-gradient(135deg, rgba(255, 66, 77, 0.08) 0%, rgba(255, 107, 107, 0.04) 100%);
+      border: 1px solid rgba(255, 66, 77, 0.35);
+      color: #D92B35;
+      box-shadow: 0 2px 8px rgba(255, 66, 77, 0.06);
+    }
+    body.light-mode .btn-patreon:hover {
+      background: linear-gradient(135deg, rgba(255, 66, 77, 0.15) 0%, rgba(255, 107, 107, 0.08) 100%);
+      border-color: rgba(255, 66, 77, 0.6);
+      color: #C71F29;
+      box-shadow: 0 4px 14px rgba(255, 66, 77, 0.16);
+    }
+
+    .lang-switch {
+      display: inline-flex;
+      background: var(--select-bg);
+      border: 1px solid var(--select-border);
+      border-radius: 999px;
+      padding: 2px;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+    .lang-btn {
+      appearance: none; border: none; background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 10px; font-weight: 700;
+      padding: 3px 8px; border-radius: 999px; cursor: pointer;
+      transition: background 0.15s, color 0.15s; line-height: 1;
+    }
+    .lang-btn:hover { color: var(--text); }
+    .lang-btn.active { background: var(--btn-bg); color: var(--btn-text); }
+
     .logo {
-      width: 48px;
-      height: 48px;
-      border-radius: 13px;
-      margin-bottom: 14px;
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      margin-bottom: 10px;
       object-fit: contain;
     }
 
@@ -60,7 +127,7 @@
       font-weight: 700;
       color: var(--text);
       letter-spacing: -0.02em;
-      margin-bottom: 7px;
+      margin-bottom: 6px;
     }
 
     p {
@@ -129,107 +196,31 @@
       cursor: pointer;
     }
 
-    /* ── Şık ve Dikkat Çekici Patreon Banner Butonu ── */
-    .patreon-btn {
-      width: 100%;
-      margin-top: 15px;
-      padding: 10px 14px;
-      border-radius: 20px;
-      background: linear-gradient(135deg, rgba(255, 66, 77, 0.12) 0%, rgba(255, 107, 107, 0.06) 100%);
-      border: 1px solid rgba(255, 66, 77, 0.32);
-      color: #FF6670;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(255, 66, 77, 0.08);
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .patreon-btn:hover {
-      background: linear-gradient(135deg, rgba(255, 66, 77, 0.22) 0%, rgba(255, 107, 107, 0.12) 100%);
-      border-color: rgba(255, 66, 77, 0.55);
-      color: #FF7B84;
-      transform: translateY(-1.5px);
-      box-shadow: 0 4px 16px rgba(255, 66, 77, 0.2);
-    }
-
-    .patreon-btn:active {
-      transform: translateY(0);
-      box-shadow: 0 1px 6px rgba(255, 66, 77, 0.15);
-    }
-
-    .patreon-btn svg {
-      flex-shrink: 0;
-      filter: drop-shadow(0 1px 2px rgba(255, 66, 77, 0.3));
-    }
-
-    body.light-mode .patreon-btn {
-      background: linear-gradient(135deg, rgba(255, 66, 77, 0.08) 0%, rgba(255, 107, 107, 0.04) 100%);
-      border: 1px solid rgba(255, 66, 77, 0.35);
-      color: #D92B35;
-      box-shadow: 0 2px 8px rgba(255, 66, 77, 0.06);
-    }
-
-    body.light-mode .patreon-btn:hover {
-      background: linear-gradient(135deg, rgba(255, 66, 77, 0.15) 0%, rgba(255, 107, 107, 0.08) 100%);
-      border-color: rgba(255, 66, 77, 0.6);
-      color: #C71F29;
-      box-shadow: 0 4px 14px rgba(255, 66, 77, 0.16);
-    }
-
     .hint {
       font-size: 11px;
       color: var(--text-hint);
       margin-top: 14px;
       line-height: 1.4;
     }
-    .top-row {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 7px;
-    }
-    .top-row h2 { margin-bottom: 0; }
-    .lang-switch {
-      display: inline-flex;
-      background: var(--select-bg);
-      border: 1px solid var(--select-border);
-      border-radius: 999px;
-      padding: 2px;
-      gap: 1px;
-      flex-shrink: 0;
-    }
-    .lang-btn {
-      appearance: none; border: none; background: transparent;
-      color: var(--text-muted);
-      font-family: inherit;
-      font-size: 10px; font-weight: 700;
-      padding: 3px 8px; border-radius: 999px; cursor: pointer;
-      transition: background 0.15s, color 0.15s; line-height: 1;
-    }
-    .lang-btn:hover { color: var(--text); }
-    .lang-btn.active { background: var(--btn-bg); color: var(--btn-text); }
   </style>
 </head>
 <body>
-  <img src="icons/icon48.png" class="logo" alt="SubMatch" />
-
-  <div class="top-row">
-    <h2>SubMatch</h2>
+  <!-- Üst Bar: En solda Support, en sağda EN/TR -->
+  <div class="header-bar">
+    <button id="patreonBtn" class="btn-patreon" type="button" title="Support on Patreon">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M22.995 13.05c-.01-5.696-4.613-10.31-10.31-10.32-5.698 0-10.32 4.623-10.32 10.32 0 5.69 4.622 10.31 10.32 10.31 1.14 0 2.242-.185 3.275-.526l-2.438-4.223a5.53 5.53 0 0 1-.837.065c-3.053 0-5.528-2.475-5.528-5.528 0-3.052 2.475-5.527 5.528-5.527 3.052 0 5.527 2.475 5.527 5.527 0 .548-.08 1.077-.23 1.577l4.78 2.76c.404-1.285.633-2.656.633-4.088z"/>
+      </svg>
+      <span data-i18n="patreonSupport">Support</span>
+    </button>
     <div class="lang-switch" role="group" aria-label="Language">
       <button class="lang-btn" data-lang="en">EN</button>
       <button class="lang-btn" data-lang="tr">TR</button>
     </div>
   </div>
+
+  <img src="icons/icon48.png" class="logo" alt="SubMatch" />
+  <h2>SubMatch</h2>
   <p data-i18n="desc">Click any subtitle word while watching a video to translate and save it.</p>
 
   <button id="openWebBtn" class="btn">
@@ -268,13 +259,6 @@
       </select>
     </div>
   </div>
-
-  <button id="patreonBtn" class="patreon-btn" type="button">
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M22.995 13.05c-.01-5.696-4.613-10.31-10.31-10.32-5.698 0-10.32 4.623-10.32 10.32 0 5.69 4.622 10.31 10.32 10.31 1.14 0 2.242-.185 3.275-.526l-2.438-4.223a5.53 5.53 0 0 1-.837.065c-3.053 0-5.528-2.475-5.528-5.528 0-3.052 2.475-5.527 5.528-5.527 3.052 0 5.527 2.475 5.527 5.527 0 .548-.08 1.077-.23 1.577l4.78 2.76c.404-1.285.633-2.656.633-4.088z"/>
-    </svg>
-    <span data-i18n="patreonSupport">Support on Patreon</span>
-  </button>
 
   <p class="hint"><span data-i18n="hint">Works on YouTube, Netflix, Disney+, Amazon Prime &amp; more.</span></p>
 
