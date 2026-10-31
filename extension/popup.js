@@ -8,6 +8,7 @@ const POPUP_STRINGS = {
     theme: "Theme", font: "Font", underline: "Underlines",
     sysOpt: "System", fontSysOpt: "System", darkOpt: "Dark", lightOpt: "Light",
     onOpt: "On", offOpt: "Off",
+    patreonSupport: "Support on Patreon",
     hint: "Works on YouTube, Netflix, Disney+, Amazon Prime & more."
   },
   tr: {
@@ -16,6 +17,7 @@ const POPUP_STRINGS = {
     theme: "Tema", font: "Yazı Tipi", underline: "Alt Çizgiler",
     sysOpt: "Sistem", fontSysOpt: "Sistem", darkOpt: "Koyu", lightOpt: "Açık",
     onOpt: "Açık", offOpt: "Kapalı",
+    patreonSupport: "Patreon'da Destek Ol",
     hint: "YouTube, Netflix, Disney+, Amazon Prime ve daha fazlasında çalışır."
   }
 };
@@ -47,6 +49,13 @@ document.addEventListener("DOMContentLoaded", () => {
     openWebBtn.addEventListener("click", () => {
       const dashboardUrl = chrome.runtime.getURL("dashboard/index.html");
       chrome.tabs.create({ url: dashboardUrl });
+    });
+  }
+
+  const patreonBtn = document.getElementById("patreonBtn");
+  if (patreonBtn) {
+    patreonBtn.addEventListener("click", () => {
+      chrome.tabs.create({ url: "https://www.patreon.com/cw/Resulth" });
     });
   }
 

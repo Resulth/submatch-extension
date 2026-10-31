@@ -129,10 +129,50 @@
       cursor: pointer;
     }
 
+    .patreon-btn {
+      width: 100%;
+      margin-top: 14px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: rgba(255, 66, 77, 0.08);
+      border: 1px solid rgba(255, 66, 77, 0.24);
+      color: #FF5A64;
+      font-size: 11.5px;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .patreon-btn:hover {
+      background: rgba(255, 66, 77, 0.16);
+      border-color: rgba(255, 66, 77, 0.42);
+      transform: translateY(-1px);
+    }
+
+    .patreon-btn svg {
+      flex-shrink: 0;
+    }
+
+    body.light-mode .patreon-btn {
+      background: rgba(255, 66, 77, 0.07);
+      border: 1px solid rgba(255, 66, 77, 0.25);
+      color: #E0303A;
+    }
+
+    body.light-mode .patreon-btn:hover {
+      background: rgba(255, 66, 77, 0.14);
+      border-color: rgba(255, 66, 77, 0.45);
+    }
+
     .hint {
       font-size: 11px;
       color: var(--text-hint);
-      margin-top: 16px;
+      margin-top: 14px;
       line-height: 1.4;
     }
     .top-row {
@@ -212,6 +252,13 @@
       </select>
     </div>
   </div>
+
+  <button id="patreonBtn" class="patreon-btn" type="button">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M22.995 13.05c-.01-5.696-4.613-10.31-10.31-10.32-5.698 0-10.32 4.623-10.32 10.32 0 5.69 4.622 10.31 10.32 10.31 1.14 0 2.242-.185 3.275-.526l-2.438-4.223a5.53 5.53 0 0 1-.837.065c-3.053 0-5.528-2.475-5.528-5.528 0-3.052 2.475-5.527 5.528-5.527 3.052 0 5.527 2.475 5.527 5.527 0 .548-.08 1.077-.23 1.577l4.78 2.76c.404-1.285.633-2.656.633-4.088z"/>
+    </svg>
+    <span data-i18n="patreonSupport">Support on Patreon</span>
+  </button>
 
   <p class="hint"><span data-i18n="hint">Works on YouTube, Netflix, Disney+, Amazon Prime &amp; more.</span></p>
 
