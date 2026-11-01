@@ -22,14 +22,6 @@ const POPUP_STRINGS = {
   }
 };
 
-function getPopupLang() {
-  let l = null;
-  try { l = localStorage.getItem("sm_website_lang"); } catch (e) {}
-  if (l === "tr" || l === "en") return l;
-  const nav = (navigator.language || "en").toLowerCase();
-  return nav.indexOf("tr") === 0 ? "tr" : "en";
-}
-
 function applyPopupLang(lang) {
   const d = POPUP_STRINGS[lang] || POPUP_STRINGS.en;
   document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -39,7 +31,6 @@ function applyPopupLang(lang) {
   document.querySelectorAll(".lang-btn").forEach(b => {
     b.classList.toggle("active", b.getAttribute("data-lang") === lang);
   });
-  try { localStorage.setItem("sm_website_lang", lang); } catch (e) {}
   try { chrome.storage.local.set({ sm_website_lang: lang }); } catch (e) {}
 }
 
@@ -63,7 +54,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const fontSelect = document.getElementById("fontSelect");
   const underlineSelect = document.getElementById("underlineSelect");
 
-  applyPopupLang(getPopupLang());
+  // Dili chrome.storage.local'dan oku (localStorage popup'ta çalışmaz)
+  chrome.storage.local.get("sm_website_lang", (res) => {
+    let lang = res && (res.sm_website_lang === "tr" || res.sm_website_lang === "en")
+      ? res.sm_website_lang
+      : (navigator.language || "en").toLowerCase().indexOf("tr") === 0 ? "tr" : "en";
+    applyPopupLang(lang);
+  });
+
   document.querySelectorAll(".lang-btn").forEach(b => {
     b.addEventListener("click", () => applyPopupLang(b.getAttribute("data-lang")));
   });
