@@ -6,7 +6,7 @@ with io.open('../submatch-website/index.html', 'r', encoding='utf-8') as f:
 
 # Fix og:image to use the actual logo hosted on the site
 old_og = '<meta property="og:image" content="https://chromewebstore.google.com/detail/conpjkfgnmeklfcpehkdpggejikdblma">'
-new_og = '<meta property="og:image" content="https://submatch-website.vercel.app/logo.png">\n    <meta property="og:url" content="https://submatch-website.vercel.app/">'
+new_og = '<meta property="og:image" content="https://submatch-extension.web.app/logo.png">\n    <meta property="og:url" content="https://submatch-extension.web.app/">'
 html = html.replace(old_og, new_og)
 
 # Fix twitter:card to summary_large_image for better social previews
