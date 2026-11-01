@@ -4,8 +4,7 @@
     "version":  "1.0.32",
     "description":  "Click any subtitle word on Netflix, YouTube, Disney+ and more to instantly translate and save it as a flashcard.",
     "permissions":  [
-                        "storage",
-                        "tabs"
+                        "storage"
                     ],
     "host_permissions":  [
                              "\u003call_urls\u003e"
