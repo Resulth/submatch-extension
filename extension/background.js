@@ -37,74 +37,123 @@ async function handleWordLookup(word, sentence, tabId) {
 }
 
 // ─── Google Translate (free endpoint, no API key required) ─────────────────────
-async function googleTranslateLookup(word, targetLang) {
-  // Request both translation (t) and dictionary definitions (d) in one call
+function buildTranslateUrl(word, targetLang, includeDictionary = true) {
   const url = new URL('https://translate.googleapis.com/translate_a/single');
   url.searchParams.set('client', 'gtx');
   url.searchParams.set('sl', 'auto');
   url.searchParams.set('tl', targetLang);
-  url.searchParams.append('dt', 't');
-  url.searchParams.append('dt', 'd'); // dictionary definitions
   url.searchParams.set('q', word);
+  if (includeDictionary) {
+    url.searchParams.append('dt', 't');
+    url.searchParams.append('dt', 'd');
+  } else {
+    url.searchParams.set('dt', 't');
+  }
+  return url.toString();
+}
 
-  const res = await fetch(url.toString(), { cache: 'no-store' });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+function extractTranslationText(json) {
+  const blocks = Array.isArray(json?.[0]) ? json[0] : [];
+  const texts = [];
 
-  const json = await res.json();
-  const translation = json?.[0]?.[0]?.[0] ?? '';
-
-  // json[1] contains dictionary entries: [[partOfSpeech, [def1, def2, ...]], ...]
-  let contextExplanation = '';
-  try {
-    const dictEntries = json?.[1] ?? [];
-    const defs = [];
-    for (const entry of dictEntries) {
-      const pos   = entry?.[0] ?? '';   // e.g. "noun"
-      const terms = entry?.[1] ?? [];   // synonyms/definitions in target lang
-      if (terms.length > 0) {
-        // Take up to 2 terms per part-of-speech
-        const termStr = terms.slice(0, 2).join(', ');
-        defs.push(pos ? `${pos}: ${termStr}` : termStr);
-      }
-      if (defs.length >= 2) break; // keep it short
-    }
-    contextExplanation = defs.join(' / ');
-  } catch { /* ignore */ }
-
-  if (!translation || translation.toLowerCase() === word.toLowerCase()) {
-    if (targetLang !== 'en') {
-      const fallbackUrl = new URL(url.toString());
-      fallbackUrl.searchParams.set('tl', 'en');
-      const fb = await fetch(fallbackUrl.toString(), { cache: 'no-store' });
-      if (fb.ok) {
-        const fbJson  = await fb.json();
-        const fbTrans = fbJson?.[0]?.[0]?.[0] ?? '';
-        if (fbTrans && fbTrans.toLowerCase() !== word.toLowerCase()) {
-          return { word, translation: fbTrans, contextExplanation, exampleSentence: '' };
-        }
-      }
+  for (const block of blocks) {
+    if (Array.isArray(block)) {
+      const text = block[0];
+      if (typeof text === 'string' && text.trim()) texts.push(text.trim());
+    } else if (typeof block === 'string' && block.trim()) {
+      texts.push(block.trim());
     }
   }
 
-  return { word, translation, contextExplanation, exampleSentence: '' };
+  if (texts.length > 0) return texts.join('');
+  return typeof json?.[0]?.[0]?.[0] === 'string' ? json[0][0][0] : '';
+}
+
+async function fetchTranslateJson(urls) {
+  let lastError = null;
+
+  for (const url of urls) {
+    try {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) {
+        lastError = new Error(`HTTP ${response.status}`);
+        continue;
+      }
+      return await response.json();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  if (lastError) throw lastError;
+  throw new Error('Translation request failed');
+}
+
+async function googleTranslateLookup(word, targetLang) {
+  const normalizedWord = String(word || '').trim();
+  if (!normalizedWord) return { word: normalizedWord, translation: '', contextExplanation: '', exampleSentence: '' };
+
+  const urls = [
+    buildTranslateUrl(normalizedWord, targetLang),
+    targetLang !== 'en' ? buildTranslateUrl(normalizedWord, 'en') : null,
+  ].filter(Boolean);
+
+  try {
+    const json = await fetchTranslateJson(urls);
+    const translation = extractTranslationText(json).trim();
+
+    let contextExplanation = '';
+    try {
+      const dictEntries = Array.isArray(json?.[1]) ? json[1] : [];
+      const defs = [];
+      for (const entry of dictEntries) {
+        const pos = entry?.[0] ?? '';
+        const terms = Array.isArray(entry?.[1]) ? entry[1] : [];
+        if (terms.length > 0) {
+          const termStr = terms.slice(0, 2).join(', ');
+          defs.push(pos ? `${pos}: ${termStr}` : termStr);
+        }
+        if (defs.length >= 2) break;
+      }
+      contextExplanation = defs.join(' / ');
+    } catch {
+      contextExplanation = '';
+    }
+
+    if (translation && translation.toLowerCase() !== normalizedWord.toLowerCase()) {
+      return { word: normalizedWord, translation, contextExplanation, exampleSentence: '' };
+    }
+
+    if (targetLang !== 'en') {
+      try {
+        const fallbackJson = await fetchTranslateJson([buildTranslateUrl(normalizedWord, 'en')]);
+        const fallbackTranslation = extractTranslationText(fallbackJson).trim();
+        if (fallbackTranslation && fallbackTranslation.toLowerCase() !== normalizedWord.toLowerCase()) {
+          return { word: normalizedWord, translation: fallbackTranslation, contextExplanation, exampleSentence: '' };
+        }
+      } catch {
+        // fall through to empty translation instead of failing the whole lookup
+      }
+    }
+
+    return { word: normalizedWord, translation: translation || '', contextExplanation, exampleSentence: '' };
+  } catch {
+    return { word: normalizedWord, translation: '', contextExplanation: '', exampleSentence: '' };
+  }
 }
 
 // ─── Sentence translation ──────────────────────────────────────────────────────
 async function translateSentence(sentence, targetLang) {
-  const url = new URL('https://translate.googleapis.com/translate_a/single');
-  url.searchParams.set('client', 'gtx');
-  url.searchParams.set('sl', 'auto');
-  url.searchParams.set('tl', targetLang);
-  url.searchParams.set('dt', 't');
-  url.searchParams.set('q', sentence);
+  const normalizedSentence = String(sentence || '').trim();
+  if (!normalizedSentence) return '';
+
+  const url = buildTranslateUrl(normalizedSentence, targetLang, false);
 
   try {
-    const res = await fetch(url.toString(), { cache: 'no-store' });
-    if (!res.ok) return '';
-    const json = await res.json();
-    // Google returns the sentence in chunks — join them all
-    const parts = json?.[0] ?? [];
-    return parts.map(p => p?.[0] ?? '').join('').trim();
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) return '';
+    const json = await response.json();
+    return extractTranslationText(json).trim();
   } catch {
     return '';
   }
