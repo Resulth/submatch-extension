@@ -12,6 +12,7 @@ The extension source is in `extension/`. Every push to `main` runs the workflow 
 4. Uploads and submits the package to the Chrome Web Store for review.
 
 Chrome Web Store submissions still go through Google's review process; an API submission does not make the update immediately live.
+If Chrome Web Store credentials are not configured, the workflow skips that step and still publishes the ZIP to the GitHub Release for manual upload.
 
 ## Configure Chrome Web Store publishing
 

@@ -123,8 +123,8 @@ jobs:
           set -euo pipefail
           for name in CWS_PUBLISHER_ID CWS_EXTENSION_ID CWS_CLIENT_ID CWS_CLIENT_SECRET CWS_REFRESH_TOKEN; do
             if [ -z "${!name}" ]; then
-              echo "::error::Missing $name. Configure the repository variable/secret as described in README.md."
-              exit 1
+              echo "::notice::Missing $name; skipping Chrome Web Store upload. Download the ZIP from the GitHub Release to publish manually."
+              exit 0
             fi
           done
 
