@@ -1,0 +1,151 @@
+name: Publish Chrome extension
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-extension-main
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      CWS_PUBLISHER_ID: ${{ vars.CWS_PUBLISHER_ID }}
+      CWS_EXTENSION_ID: ${{ vars.CWS_EXTENSION_ID }}
+      CWS_CLIENT_ID: ${{ secrets.CWS_CLIENT_ID }}
+      CWS_CLIENT_SECRET: ${{ secrets.CWS_CLIENT_SECRET }}
+      CWS_REFRESH_TOKEN: ${{ secrets.CWS_REFRESH_TOKEN }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test and build web app
+        working-directory: web
+        run: |
+          npm ci
+          npm test
+          npm run build
+
+      - name: Sync dashboard build into extension
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const source = 'web/dist';
+          const destination = 'extension/dashboard';
+          const assets = path.join(source, 'assets');
+          if (!fs.existsSync(assets)) throw new Error('Web build assets were not produced');
+          fs.rmSync(path.join(destination, 'assets'), { recursive: true, force: true });
+          fs.cpSync(assets, path.join(destination, 'assets'), { recursive: true });
+          let html = fs.readFileSync(path.join(source, 'index.html'), 'utf8');
+          if (!html.includes('./clean-url.js')) {
+            html = html.replace('</head>', '    <script src="./clean-url.js"></script>\n  </head>');
+          }
+          fs.writeFileSync(path.join(destination, 'index.html'), html);
+          NODE
+
+      - name: Validate extension scripts
+        run: |
+          node -e "JSON.parse(require('node:fs').readFileSync('extension/manifest.json', 'utf8'))"
+          node --check extension/background.js
+          node --check extension/content.js
+          node --check extension/popup.js
+
+      - name: Bump extension patch version
+        id: version
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'extension/manifest.json';
+          const source = fs.readFileSync(path, 'utf8');
+          const manifest = JSON.parse(source);
+          const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(manifest.version);
+          if (!match) throw new Error(`Expected a three-part extension version, got ${manifest.version}`);
+          const patch = Number(match[3]);
+          if (patch >= 65535) throw new Error('Extension patch version reached the maximum supported value');
+          const version = `${match[1]}.${match[2]}.${patch + 1}`;
+          const updated = source.replace(/("version"\s*:\s*")[^"]+(")/, (_, prefix, suffix) => `${prefix}${version}${suffix}`);
+          if (updated === source) throw new Error('Could not update extension version in manifest');
+          fs.writeFileSync(path, updated);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\n`);
+          NODE
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add extension/manifest.json extension/dashboard
+          git commit -m "chore(release): v${{ steps.version.outputs.version }} [skip ci]"
+          git push origin HEAD:main
+
+      - name: Package extension
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          cd extension
+          zip -qr "$RUNNER_TEMP/submatch-extension-v${VERSION}.zip" . -x '*.DS_Store'
+
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: submatch-extension-v${{ steps.version.outputs.version }}
+          path: ${{ runner.temp }}/submatch-extension-v${{ steps.version.outputs.version }}.zip
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: SubMatch v${{ steps.version.outputs.version }}
+          generate_release_notes: true
+          files: ${{ runner.temp }}/submatch-extension-v${{ steps.version.outputs.version }}.zip
+
+      - name: Publish to Chrome Web Store
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          for name in CWS_PUBLISHER_ID CWS_EXTENSION_ID CWS_CLIENT_ID CWS_CLIENT_SECRET CWS_REFRESH_TOKEN; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing $name. Configure the repository variable/secret as described in README.md."
+              exit 1
+            fi
+          done
+
+          token_response="$(curl --fail-with-body --silent --show-error \
+            --request POST https://oauth2.googleapis.com/token \
+            --data-urlencode "client_id=$CWS_CLIENT_ID" \
+            --data-urlencode "client_secret=$CWS_CLIENT_SECRET" \
+            --data-urlencode "refresh_token=$CWS_REFRESH_TOKEN" \
+            --data-urlencode "grant_type=refresh_token")"
+          access_token="$(jq -er '.access_token' <<< "$token_response")"
+          zip_path="$RUNNER_TEMP/submatch-extension-v${VERSION}.zip"
+
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $access_token" \
+            --header "Content-Type: application/zip" \
+            --data-binary "@$zip_path" \
+            "https://chromewebstore.googleapis.com/upload/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_EXTENSION_ID}:upload"
+
+          curl --fail-with-body --silent --show-error \
+            --request POST \
+            --header "Authorization: Bearer $access_token" \
+            --header "Content-Length: 0" \
+            "https://chromewebstore.googleapis.com/v2/publishers/${CWS_PUBLISHER_ID}/items/${CWS_EXTENSION_ID}:publish"
